@@ -1,0 +1,1625 @@
+<!DOCTYPE html>
+<html lang="es" class="h-full bg-slate-50">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Azzorti / Dupree - Formulario de Bocetación de Moda</title>
+  <script src="https://www.gstatic.com/antigravity/web/dev/tailwindcss.min.js"></script>
+  <style>
+    ::-webkit-scrollbar { width: 6px; height: 6px; }
+    ::-webkit-scrollbar-track { background: #f1f5f9; }
+    ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 9999px; }
+    ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    .tab-active { border-color: #059669; color: #059669; font-weight: 700; }
+    .cell-badge { font-family: ui-monospace, monospace; font-size: 10px; background: #ecfdf5; color: #047857; border: 1px solid #a7f3d0; padding: 1px 5px; border-radius: 4px; }
+    .bt-active { background-color: #059669 !important; color: white !important; font-weight: bold; border-color: #047857 !important; box-shadow: 0 4px 6px -1px rgba(5, 150, 105, 0.3); }
+    .dropzone-active { border-color: #059669 !important; background-color: #f0fdf4 !important; }
+  </style>
+</head>
+<body class="h-full text-slate-800 antialiased flex flex-col font-sans">
+
+  <!-- PANTALLA 1: ONBOARDING / SUBIR PLANTILLA EXCEL -->
+  <div id="screen-onboarding" class="min-h-full flex items-center justify-center p-4 bg-gradient-to-br from-slate-900 via-slate-800 to-slate-900 text-white">
+    <div class="max-w-xl w-full bg-slate-800/90 border border-slate-700/80 rounded-3xl p-6 sm:p-8 shadow-2xl backdrop-blur-xl text-center space-y-6">
+      
+      <div class="space-y-2">
+        <div class="w-16 h-16 rounded-2xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center mx-auto shadow-xl shadow-emerald-500/20 font-bold text-white text-3xl">
+          A
+        </div>
+        <h1 class="text-xl sm:text-2xl font-bold tracking-tight text-white">AZZORTI / DUPREE</h1>
+        <p class="text-xs sm:text-sm text-slate-300">Sistema de Bocetación Técnica y Fichas de Producto (C3-6 2026)</p>
+      </div>
+
+      <div class="bg-slate-900/60 border border-slate-700/60 rounded-2xl p-4 text-left space-y-2">
+        <div class="flex items-center gap-2 text-xs font-bold text-emerald-400">
+          <span class="w-5 h-5 rounded-full bg-emerald-500/20 text-emerald-400 flex items-center justify-center border border-emerald-500/30 text-[11px]">1</span>
+          <span>Paso 1: Carga la Plantilla de Excel para Iniciar</span>
+        </div>
+        <p class="text-[11px] text-slate-400 leading-relaxed">
+          Sube la plantilla vacía (.xlsm). Podrás diligenciar tantas hojas de referencia (BT1..BT20) como necesites, ingresar los textos técnicos, pegar dibujos/referentes y al final descargar una copia unificada con las hojas renombradas con su número de referencia.
+        </p>
+      </div>
+
+      <div id="onboarding-dropzone" class="border-2 border-dashed border-slate-600 hover:border-emerald-500 bg-slate-900/40 hover:bg-slate-900/80 rounded-2xl p-8 transition cursor-pointer flex flex-col items-center justify-center space-y-3" onclick="document.getElementById('input-file-onboarding').click()">
+        <input type="file" id="input-file-onboarding" accept=".xlsm,.xlsx" class="hidden" onchange="handleTemplateUpload(event)">
+        
+        <div class="w-12 h-12 rounded-full bg-emerald-500/10 text-emerald-400 flex items-center justify-center">
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+        </div>
+        <div>
+          <p class="text-sm font-bold text-slate-200">Arrastra tu archivo Excel (.xlsm) aquí</p>
+          <p class="text-xs text-slate-400 mt-0.5">o haz clic para buscarlo en tu computador</p>
+        </div>
+      </div>
+
+      <div class="pt-2">
+        <button onclick="useServerDefaultTemplate()" class="text-xs text-slate-400 hover:text-emerald-400 font-semibold flex items-center justify-center gap-1.5 mx-auto py-2 transition">
+          <svg class="w-4 h-4 text-emerald-400" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+          <span>O usar la plantilla oficial precargada en el servidor (C3-6 2026)</span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- PANTALLA 2: WORKSPACE COMPLETO MULTI-BT -->
+  <div id="screen-workspace" class="min-h-full flex flex-col hidden">
+    
+    <!-- Top Navigation Bar -->
+    <header class="bg-slate-900 text-white border-b border-slate-800 sticky top-0 z-50 shadow-md">
+      <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between">
+        
+        <div class="flex items-center gap-3">
+          <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-emerald-500 to-teal-400 flex items-center justify-center font-bold text-white text-lg">
+            A
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h1 class="font-bold text-base sm:text-lg tracking-tight text-white">AZZORTI / DUPREE</h1>
+              <span id="badge-template-name" class="bg-emerald-500/20 text-emerald-400 text-[10px] font-mono px-2 py-0.5 rounded-full border border-emerald-500/30 truncate max-w-[200px] sm:max-w-xs">Plantilla Cargada</span>
+            </div>
+            <p class="text-xs text-slate-400">Espacio de Trabajo Multi-Boceto (BT1 .. BT20)</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3">
+          <button onclick="cambiarPlantilla()" class="hidden sm:flex text-xs text-slate-400 hover:text-white px-3 py-2 rounded-xl transition border border-slate-700">
+            Cambiar Plantilla
+          </button>
+
+          <button onclick="abrirModalDescargaUnificada()" class="flex items-center gap-2 bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold px-4 py-2.5 rounded-xl transition shadow-lg shadow-emerald-900/30">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+            <span>Descargar Copia Unificada</span>
+            <span id="badge-filled-count" class="bg-emerald-800/80 text-emerald-200 text-[10px] px-1.5 py-0.5 rounded-full font-mono">0</span>
+          </button>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-4 sm:p-6 lg:p-8 space-y-6">
+      
+      <!-- BT Sheets Selector Bar (BT1 .. BT20) -->
+      <div class="bg-white border border-slate-200 rounded-2xl p-3 sm:p-4 shadow-sm space-y-2">
+        <div class="flex items-center justify-between">
+          <div class="flex items-center gap-2">
+            <span class="text-xs font-bold text-slate-700 uppercase tracking-wider">Hojas de Bocetación / Referencias:</span>
+            <span id="summary-filled-sheets" class="text-xs text-emerald-700 font-semibold bg-emerald-50 px-2 py-0.5 rounded-md border border-emerald-200">0 de 20 Bocetos Diligenciados</span>
+          </div>
+          <div class="flex items-center gap-2 text-[11px] text-slate-500">
+            <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-emerald-500"></span> Con datos</span>
+            <span class="inline-flex items-center gap-1"><span class="w-2 h-2 rounded-full bg-slate-300"></span> Vacío</span>
+          </div>
+        </div>
+
+        <div class="flex gap-1.5 overflow-x-auto pb-1 pt-1" id="bt-selector-container"></div>
+      </div>
+
+      <!-- Active BT Status Banner -->
+      <div class="bg-white border border-slate-200/80 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+        <div class="flex items-center gap-3">
+          <div class="p-2.5 bg-emerald-50 text-emerald-600 rounded-xl border border-emerald-100">
+            <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"/></svg>
+          </div>
+          <div>
+            <div class="flex items-center gap-2">
+              <h2 class="font-bold text-slate-800 text-base" id="bannerSheetTitle">Editando: Hoja BT1</h2>
+              <span id="status-badge-current" class="inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-slate-200">
+                ⚪ Hoja Vacía
+              </span>
+            </div>
+            <p class="text-xs text-slate-500 mt-0.5">La referencia asignada en AN1:AO1 renombrará la pestaña del Excel automáticamente.</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 w-full md:w-auto">
+          <button onclick="limpiarHojaActual()" class="text-xs text-slate-500 hover:text-slate-800 px-3 py-1.5 rounded-lg border border-slate-200 hover:bg-slate-50 transition">
+            Limpiar este Boceto
+          </button>
+          <button onclick="cargarDemoEnHojaActual()" class="text-xs bg-indigo-50 text-indigo-600 hover:bg-indigo-100 px-3 py-1.5 rounded-lg border border-indigo-200 font-semibold transition">
+            Cargar Datos Demo
+          </button>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs Inside Current BT -->
+      <div class="bg-white border border-slate-200 rounded-2xl shadow-sm overflow-hidden">
+        <div class="flex border-b border-slate-200 overflow-x-auto bg-slate-50/50 px-2 pt-2 gap-1 text-sm font-medium">
+          <button onclick="showTab('general')" id="tabBtn-general" class="tab-btn px-4 py-3 border-b-2 tab-active transition-all flex items-center gap-2">
+            <span>1. Generales, Referencia & Descripción</span>
+          </button>
+          <button onclick="showTab('prendas')" id="tabBtn-prendas" class="tab-btn px-4 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+            <span>2. Especificaciones de Prendas (1 a 6)</span>
+          </button>
+          <button onclick="showTab('telas')" id="tabBtn-telas" class="tab-btn px-4 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+            <span>3. Materias Primas / Códigos SAP Lego (Filas 24..33)</span>
+          </button>
+          <button onclick="showTab('graficos')" id="tabBtn-graficos" class="tab-btn px-4 py-3 border-b-2 border-transparent text-slate-500 hover:text-slate-800 transition-all flex items-center gap-2">
+            <span>4. Dibujo Plano, Color, Referentes & Bullets</span>
+          </button>
+        </div>
+
+        <!-- TAB 1: GENERALES, REFERENCIA Y DESCRIPCIÓN -->
+        <div id="tabContent-general" class="p-5 sm:p-6 space-y-6">
+          
+          <!-- Sección A: Referencia, Diseñador, Marca, Campaña, Grupo y $OBJETIVO -->
+          <div>
+            <div class="flex items-center justify-between mb-3">
+              <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider">A. Identificación, Marca, Campaña & Precio Objetivo</h3>
+              <span class="text-[11px] font-semibold text-emerald-700 bg-emerald-50 border border-emerald-200 px-2 py-0.5 rounded-md">
+                🏷️ La Referencia (AN1:AO1) renombra la hoja del Excel
+              </span>
+            </div>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-4">
+              
+              <!-- Referencia (AN1:AO1) -->
+              <div class="border-2 border-emerald-400 bg-emerald-50/50 p-2.5 rounded-2xl sm:col-span-2 lg:col-span-2 shadow-sm">
+                <label class="block text-xs font-bold text-emerald-900 mb-1 flex items-center justify-between">
+                  <span>Referencia de Producto</span>
+                  <span class="cell-badge font-bold">AN1:AO1</span>
+                </label>
+                <input type="text" id="input_AN1" oninput="onReferenciaInput(this)" placeholder="Ej: R0142" class="w-full bg-white border border-emerald-300 rounded-xl px-3 py-2 text-sm font-bold font-mono text-emerald-800 uppercase focus:ring-2 focus:ring-emerald-500 outline-none transition">
+                <span class="text-[10px] text-emerald-700 block mt-1">Al exportar, la hoja se renombrará a este código</span>
+              </div>
+
+              <!-- Diseñador (L1:N1) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Diseñador(a)</span>
+                  <span class="cell-badge">L1:N1</span>
+                </label>
+                <select id="input_L1" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="CAROLINA">CAROLINA</option>
+                  <option value="BRYAN">BRYAN</option>
+                  <option value="JOHANA">JOHANA</option>
+                  <option value="LAURAA">LAURAA</option>
+                  <option value="ELIZABETH">ELIZABETH</option>
+                  <option value="LEIDY">LEIDY</option>
+                  <option value="GIOVANA">GIOVANA</option>
+                  <option value="ANDRES">ANDRES</option>
+                </select>
+              </div>
+
+              <!-- Marca (D4:E4) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Marca Catálogo</span>
+                  <span class="cell-badge">D4:E4</span>
+                </label>
+                <select id="input_D4" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="AZZORTI">AZZORTI</option>
+                  <option value="LIVVA">LIVVA</option>
+                  <option value="TISSINI">TISSINI</option>
+                  <option value="AZZ IND">AZZ IND (Índigo)</option>
+                  <option value="LIV IND">LIV IND (Índigo)</option>
+                </select>
+              </div>
+
+              <!-- Campaña (AI1:AJ1) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Campaña Catálogo</span>
+                  <span class="cell-badge">AI1:AJ1</span>
+                </label>
+                <select id="input_AI1" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="3-6">Campaña 3-6 (202603)</option>
+                  <option value="1-4">Campaña 1-4 (202601)</option>
+                  <option value="2-5">Campaña 2-5 (202602)</option>
+                  <option value="4-7">Campaña 4-7 (202604)</option>
+                  <option value="5-8">Campaña 5-8 (202605)</option>
+                  <option value="6-9">Campaña 6-9 (202606)</option>
+                  <option value="7-10">Campaña 7-10 (202607)</option>
+                  <option value="8-11">Campaña 8-11 (202608)</option>
+                  <option value="9-12">Campaña 9-12 (202609)</option>
+                  <option value="10-13">Campaña 10-13 (202610)</option>
+                  <option value="11-14">Campaña 11-14 (202611)</option>
+                  <option value="12-15">Campaña 12-15 (202612)</option>
+                </select>
+              </div>
+
+              <!-- Grupo (K2:N2) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Grupo</span>
+                  <span class="cell-badge">K2:N2</span>
+                </label>
+                <select id="input_K2" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="FE FEMENINA">FE FEMENINA</option>
+                  <option value="MA MASCULINO">MA MASCULINO</option>
+                  <option value="CO CONTROL">CO CONTROL</option>
+                  <option value="KO KIDS NINOS">KO KIDS NIÑOS</option>
+                  <option value="KA KIDS NINAS">KA KIDS NIÑAS</option>
+                  <option value="ATH FEM">ATH FEM (Deportivo)</option>
+                  <option value="ATH MAS">ATH MAS (Deportivo)</option>
+                  <option value="BE BEBES">BE BEBES</option>
+                  <option value="TE TEENS">TE TEENS</option>
+                  <option value="HOGAR">HOGAR</option>
+                </select>
+              </div>
+
+              <!-- $OBJETIVO (AD1:AE1) -->
+              <div class="sm:col-span-2 lg:col-span-6">
+                <label class="block text-xs font-semibold text-emerald-800 mb-1 flex items-center justify-between">
+                  <span>$ OBJETIVO (COP)</span>
+                  <span class="cell-badge">AD1:AE1</span>
+                </label>
+                <div class="relative">
+                  <span class="absolute inset-y-0 left-0 pl-3 flex items-center text-slate-400 text-xs font-bold">$</span>
+                  <input type="number" id="input_AD1" oninput="autoSaveCurrentBT()" placeholder="Ej: 39990" class="w-full bg-emerald-50/50 border border-emerald-300 rounded-xl pl-7 pr-3 py-2 text-sm font-bold text-slate-800 focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                </div>
+              </div>
+
+            </div>
+          </div>
+
+          <hr class="border-slate-100">
+
+          <!-- Sección B: Texto Descriptivo de la Prenda (B5:E21) -->
+          <div>
+            <div class="flex items-center justify-between mb-2">
+              <label class="block text-xs font-bold text-slate-800 uppercase tracking-wider flex items-center gap-2">
+                <span>B. Texto Descriptivo de la Prenda (Observaciones de Confección)</span>
+                <span class="cell-badge font-bold">B5:E21</span>
+              </label>
+              <span class="text-[11px] text-slate-400">Detalles de ensamble, cuellos, mangas, piezas sobrepuestas y silueta</span>
+            </div>
+            <textarea id="input_B5" oninput="autoSaveCurrentBT()" rows="4" placeholder="1. Cuello sobre puesto como muestra física (efecto prenda sobre puesta)&#10;2. Manga corta con efecto manga sobre puesta en contraste como muestra física&#10;3. Largo total blusa con pieza interna simulando prenda sobre puesta como muestra física.&#10;4. Silueta semi ajustada" class="w-full bg-slate-50 border border-slate-300 rounded-2xl p-3.5 text-xs sm:text-sm font-sans leading-relaxed focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition"></textarea>
+          </div>
+
+          <hr class="border-slate-100">
+
+          <!-- Sección C: Tipología de Producto, Silueta & Tallas -->
+          <div>
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">C. Tipología de Producto, Silueta & Tallas</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              
+              <!-- Clase de Prenda (D3:G3) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Clase de Prenda</span>
+                  <span class="cell-badge">D3:G3</span>
+                </label>
+                <select id="input_D3" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="CAMISETA">CAMISETA</option>
+                  <option value="BLUSA">BLUSA</option>
+                  <option value="VESTIDO">VESTIDO</option>
+                  <option value="PANTALON">PANTALON</option>
+                  <option value="ENTERIZO">ENTERIZO</option>
+                  <option value="BODY">BODY</option>
+                  <option value="CHAQUETA">CHAQUETA</option>
+                  <option value="FALDA">FALDA</option>
+                  <option value="JOGGER">JOGGER</option>
+                  <option value="LEGGINGS">LEGGINGS</option>
+                  <option value="PIJAMA">PIJAMA</option>
+                  <option value="POLO">POLO</option>
+                  <option value="SHORT">SHORT</option>
+                  <option value="TOP">TOP</option>
+                  <option value="DUO">DUO</option>
+                  <option value="TRIO">TRIO</option>
+                  <option value="SET">SET</option>
+                  <option value="CONJUNTO">CONJUNTO</option>
+                  <option value="ABRIGO">ABRIGO</option>
+                  <option value="BERMUDA">BERMUDA</option>
+                </select>
+              </div>
+
+              <!-- Clase Boceto / Silueta General (S2:U2) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Clase Boceto / Silueta</span>
+                  <span class="cell-badge">S2:U2</span>
+                </label>
+                <select id="input_S2" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="Semi Ajustada">Semi Ajustada</option>
+                  <option value="Ajustada">Ajustada</option>
+                  <option value="Suelta">Suelta</option>
+                  <option value="Brasilera">Brasilera</option>
+                  <option value="Panty">Panty</option>
+                  <option value="Cachetero">Cachetero</option>
+                  <option value="Boxer">Boxer</option>
+                </select>
+              </div>
+
+              <!-- Rango Tallas / Subuen (X2:Z2) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Rango de Tallas (Subuen)</span>
+                  <span class="cell-badge">X2:Z2</span>
+                </label>
+                <select id="input_X2" onchange="onRangoTallasChange(); autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="XS-S-M-L-XL">XS-S-M-L-XL</option>
+                  <option value="S-M-L-XL">S-M-L-XL</option>
+                  <option value="6-8-10-12-14">6-8-10-12-14</option>
+                  <option value="32-34-36-38">32-34-36-38</option>
+                  <option value="28-30-32-34-36">28-30-32-34-36</option>
+                  <option value="UNICA">UNICA</option>
+                </select>
+              </div>
+
+              <!-- Proyecto / Fecha (H4:K4) -->
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Proyecto / Cápsula</span>
+                  <span class="cell-badge">H4:K4</span>
+                </label>
+                <input type="text" id="input_H4" oninput="autoSaveCurrentBT()" placeholder="Ej: BOTANIC GARDEN C3" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+              </div>
+
+            </div>
+          </div>
+
+          <!-- Tallas Individuales Desglosadas (K3 a P3) -->
+          <div class="bg-slate-50 border border-slate-200/80 rounded-xl p-4">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-slate-700">Tallas Individuales por Columna de Producción</span>
+              <span class="cell-badge">K3, L3, M3, N3, O3, P3</span>
+            </div>
+            <div class="grid grid-cols-6 gap-2">
+              <div>
+                <label class="text-[10px] text-slate-400 font-semibold block mb-0.5 text-center">T1 [K3]</label>
+                <input type="text" id="input_K3" oninput="autoSaveCurrentBT()" value="XS" class="w-full bg-white border border-slate-200 text-center text-xs font-bold py-1.5 rounded-lg">
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 font-semibold block mb-0.5 text-center">T2 [L3]</label>
+                <input type="text" id="input_L3" oninput="autoSaveCurrentBT()" value="S" class="w-full bg-white border border-slate-200 text-center text-xs font-bold py-1.5 rounded-lg">
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 font-semibold block mb-0.5 text-center">T3 [M3]</label>
+                <input type="text" id="input_M3" oninput="autoSaveCurrentBT()" value="M" class="w-full bg-white border border-slate-200 text-center text-xs font-bold py-1.5 rounded-lg">
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 font-semibold block mb-0.5 text-center">T4 [N3]</label>
+                <input type="text" id="input_N3" oninput="autoSaveCurrentBT()" value="L" class="w-full bg-white border border-slate-200 text-center text-xs font-bold py-1.5 rounded-lg">
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 font-semibold block mb-0.5 text-center">T5 [O3]</label>
+                <input type="text" id="input_O3" oninput="autoSaveCurrentBT()" value="XL" class="w-full bg-white border border-slate-200 text-center text-xs font-bold py-1.5 rounded-lg">
+              </div>
+              <div>
+                <label class="text-[10px] text-slate-400 font-semibold block mb-0.5 text-center">T6 [P3]</label>
+                <input type="text" id="input_P3" oninput="autoSaveCurrentBT()" value="XXL" class="w-full bg-white border border-slate-200 text-center text-xs font-bold py-1.5 rounded-lg">
+              </div>
+            </div>
+          </div>
+
+          <hr class="border-slate-100">
+
+          <!-- Sección D: Procesos Especiales, Isotipo & Logística -->
+          <div>
+            <h3 class="text-xs font-bold text-slate-400 uppercase tracking-wider mb-3">D. Procesos Especiales, Isotipo & Logística</h3>
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+              
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Proceso Especial 1</span>
+                  <span class="cell-badge">N4:P4</span>
+                </label>
+                <select id="input_N4" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="">Ninguno</option>
+                  <option value="LOCALIZADO">LOCALIZADO (Estampado)</option>
+                  <option value="CONTINUO">CONTINUO (Rotativo)</option>
+                  <option value="BORDADO">BORDADO</option>
+                  <option value="APLIQUE">APLIQUE</option>
+                  <option value="PIEDRAS">PIEDRAS</option>
+                  <option value="CORTE LASER">CORTE LASER</option>
+                  <option value="LAVANDERIA">LAVANDERIA</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Proceso Especial 2</span>
+                  <span class="cell-badge">S4:U4</span>
+                </label>
+                <select id="input_S4" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="">Ninguno</option>
+                  <option value="LAVANDERIA">LAVANDERIA</option>
+                  <option value="LOCALIZADO">LOCALIZADO</option>
+                  <option value="BORDADO">BORDADO</option>
+                  <option value="APLIQUE">APLIQUE</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>¿Tiene Isotipo?</span>
+                  <span class="cell-badge">Y3:Z3</span>
+                </label>
+                <select id="input_Y3" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="NO">NO</option>
+                  <option value="SI">SI</option>
+                </select>
+              </div>
+
+              <div>
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Proveedor / Taller</span>
+                  <span class="cell-badge">AV12:AZ12</span>
+                </label>
+                <select id="input_AV12" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="INCA">INCA</option>
+                  <option value="CHINA">CHINA</option>
+                  <option value="BANGLADESH">BANGLADESH</option>
+                  <option value="PC">PC (Paquete Completo)</option>
+                  <option value="TALLER NACIONAL">TALLER NACIONAL</option>
+                  <option value="COLOMBIA">COLOMBIA</option>
+                </select>
+              </div>
+
+              <div class="col-span-1 sm:col-span-2 lg:col-span-4">
+                <label class="block text-xs font-semibold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Rol de Referencia</span>
+                  <span class="cell-badge">AV14:AZ14</span>
+                </label>
+                <select id="input_AV14" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-300 rounded-xl px-3 py-2 text-sm focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition">
+                  <option value="MODA">MODA</option>
+                  <option value="BASICO">BASICO</option>
+                  <option value="INFALTABLE">INFALTABLE</option>
+                  <option value="VANGUARDIA">VANGUARDIA</option>
+                  <option value="PROMOCIONAL">PROMOCIONAL</option>
+                  <option value="IMAGEN">IMAGEN</option>
+                </select>
+              </div>
+
+            </div>
+          </div>
+        </div>
+
+        <!-- TAB 2: ESPECIFICACIONES DE PRENDAS (1 A 6) -->
+        <div id="tabContent-prendas" class="p-5 sm:p-6 space-y-6 hidden">
+          <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            
+            <div class="border border-emerald-200 bg-emerald-50/30 rounded-2xl p-4 sm:p-5 space-y-3">
+              <div class="flex items-center justify-between pb-2 border-b border-emerald-100">
+                <span class="font-bold text-sm text-emerald-800 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+                  Prenda 1 (Principal)
+                </span>
+                <span class="cell-badge">AV2..AV9</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Largo Superior [AV2]</label>
+                  <select id="input_AV2" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="CAMISETA">CAMISETA</option>
+                    <option value="BLUSA">BLUSA</option>
+                    <option value="BLUSON">BLUSON</option>
+                    <option value="CROP_TOP">CROP_TOP</option>
+                    <option value="TOP">TOP</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Tipo de Escote [AV3]</label>
+                  <select id="input_AV3" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="REDONDO">REDONDO</option>
+                    <option value="EN_V">EN_V</option>
+                    <option value="BANDEJA">BANDEJA</option>
+                    <option value="CUADRADO">CUADRADO</option>
+                    <option value="CORAZON">CORAZON</option>
+                    <option value="DRAPEADO">DRAPEADO</option>
+                    <option value="STRAPPLESS">STRAPPLESS</option>
+                    <option value="ASIMETRICO">ASIMETRICO</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Tipo de Cuello [AV4]</label>
+                  <select id="input_AV4" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="SIN CUELLO">SIN CUELLO</option>
+                    <option value="CAMISERO">CAMISERO</option>
+                    <option value="NERU">NERU</option>
+                    <option value="TORTUGA">TORTUGA</option>
+                    <option value="CAPUCHA">CAPUCHA</option>
+                    <option value="HALTER">HALTER</option>
+                    <option value="CHAL">CHAL</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Tipo de Manga [AV5]</label>
+                  <select id="input_AV5" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="MANGA CORTA">MANGA CORTA</option>
+                    <option value="MANGA LARGA">MANGA LARGA</option>
+                    <option value="MANGA 3/4">MANGA 3/4</option>
+                    <option value="SISA">SISA</option>
+                    <option value="MANGA AL CODO">MANGA AL CODO</option>
+                    <option value="MANGA RANGULA">MANGA RANGULA</option>
+                    <option value="MANGA KIMONO">MANGA KIMONO</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Largo Inferior [AV7]</label>
+                  <select id="input_AV7" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="">N/A (Prenda Superior)</option>
+                    <option value="PANTALON">PANTALON</option>
+                    <option value="TOBILLO">TOBILLO</option>
+                    <option value="PESCADOR">PESCADOR</option>
+                    <option value="BERMUDA">BERMUDA</option>
+                    <option value="CAPRI">CAPRI</option>
+                    <option value="SHORT">SHORT</option>
+                    <option value="MINI">MINI</option>
+                    <option value="MIDI">MIDI</option>
+                    <option value="LARGO">LARGO</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Ancho de Bota [AV8]</label>
+                  <select id="input_AV8" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="RECTA">RECTA</option>
+                    <option value="PITILLO">PITILLO</option>
+                    <option value="BOTA CAMPANA">BOTA CAMPANA</option>
+                    <option value="JOGGER CON RESORTE">JOGGER CON RESORTE</option>
+                    <option value="AMPLIA">AMPLIA</option>
+                    <option value="PALAZZO">PALAZZO</option>
+                  </select>
+                </div>
+
+                <div class="col-span-2">
+                  <label class="font-semibold text-slate-600 block mb-1">Tipo de Tiro [AV9]</label>
+                  <select id="input_AV9" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="MEDIO">MEDIO</option>
+                    <option value="ALTO">ALTO</option>
+                    <option value="DESCADERADO">DESCADERADO</option>
+                    <option value="SUPER ALTO">SUPER ALTO</option>
+                    <option value="TIRO CORTO">TIRO CORTO</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="border border-slate-200 bg-slate-50/50 rounded-2xl p-4 sm:p-5 space-y-3">
+              <div class="flex items-center justify-between pb-2 border-b border-slate-200">
+                <span class="font-bold text-sm text-slate-700 flex items-center gap-1.5">
+                  <span class="w-2 h-2 rounded-full bg-slate-400"></span>
+                  Prenda 2 (Conjunto / Dúo)
+                </span>
+                <span class="cell-badge">BG2..BG9</span>
+              </div>
+
+              <div class="grid grid-cols-2 gap-3 text-xs">
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Largo Superior [BG2]</label>
+                  <select id="input_BG2" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="">N/A (Prenda Inferior)</option>
+                    <option value="CAMISETA">CAMISETA</option>
+                    <option value="BLUSA">BLUSA</option>
+                    <option value="TOP">TOP</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Tipo de Escote [BG3]</label>
+                  <select id="input_BG3" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="REDONDO">REDONDO</option>
+                    <option value="EN_V">EN_V</option>
+                    <option value="BANDEJA">BANDEJA</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Tipo de Cuello [BG4]</label>
+                  <select id="input_BG4" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="SIN CUELLO">SIN CUELLO</option>
+                    <option value="CAMISERO">CAMISERO</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Tipo de Manga [BG5]</label>
+                  <select id="input_BG5" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="MANGA CORTA">MANGA CORTA</option>
+                    <option value="SISA">SISA</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Largo Inferior [BG7]</label>
+                  <select id="input_BG7" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="PANTALON">PANTALON</option>
+                    <option value="SHORT">SHORT</option>
+                    <option value="BERMUDA">BERMUDA</option>
+                    <option value="FALDA">FALDA</option>
+                  </select>
+                </div>
+
+                <div>
+                  <label class="font-semibold text-slate-600 block mb-1">Ancho de Bota [BG8]</label>
+                  <select id="input_BG8" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="RECTA">RECTA</option>
+                    <option value="PITILLO">PITILLO</option>
+                    <option value="BOTA CAMPANA">BOTA CAMPANA</option>
+                  </select>
+                </div>
+
+                <div class="col-span-2">
+                  <label class="font-semibold text-slate-600 block mb-1">Tipo de Tiro [BG9]</label>
+                  <select id="input_BG9" onchange="autoSaveCurrentBT()" class="w-full bg-white border border-slate-200 rounded-lg p-2">
+                    <option value="MEDIO">MEDIO</option>
+                    <option value="ALTO">ALTO</option>
+                    <option value="DESCADERADO">DESCADERADO</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+        <!-- TAB 3: MATERIAS PRIMAS Y TELAS SAP LEGO (10 FILAS: B24 A B33) -->
+        <div id="tabContent-telas" class="p-5 sm:p-6 space-y-4 hidden">
+          <div class="flex flex-col sm:flex-row justify-between items-start sm:items-center pb-2 border-b border-slate-200 gap-2">
+            <div>
+              <h3 class="font-bold text-sm text-slate-800">Despiece de Telas y Materias Primas SAP (Filas 24 a 33 de Excel)</h3>
+              <p class="text-xs text-slate-500">Escribe el código SAP o el nombre de la tela. Se inyecta quirúrgicamente en las celdas <code class="bg-slate-100 px-1 py-0.5 rounded font-bold text-emerald-700">B24:C24</code> a <code class="bg-slate-100 px-1 py-0.5 rounded font-bold text-emerald-700">B33:C33</code>.</p>
+            </div>
+          </div>
+
+          <datalist id="sapMaterialsList"></datalist>
+
+          <div class="overflow-x-auto border border-slate-200 rounded-xl shadow-sm">
+            <table class="w-full text-left text-xs">
+              <thead class="bg-slate-100 text-slate-700 font-bold border-b border-slate-200">
+                <tr>
+                  <th class="p-3 w-10 text-center">Fila</th>
+                  <th class="p-3 min-w-[260px]">COLOR 1: CÓDIGO / TELA SAP <span class="cell-badge font-normal">B:C</span></th>
+                  <th class="p-3 w-32">ESTAMPADO C1 <span class="cell-badge font-normal">K:L</span></th>
+                  <th class="p-3 min-w-[260px]">COLOR 2: CÓDIGO / TELA SAP <span class="cell-badge font-normal">V:W</span></th>
+                  <th class="p-3 w-28">PRENDA <span class="cell-badge font-normal">AS</span></th>
+                  <th class="p-3 min-w-[160px]">UBICACIÓN TELA <span class="cell-badge font-normal">AT:AV</span></th>
+                </tr>
+              </thead>
+              <tbody class="divide-y divide-slate-100" id="telasTableBody">
+              </tbody>
+            </table>
+          </div>
+        </div>
+
+        <!-- TAB 4: DIBUJO PLANO, DIBUJO COLOR, REFERENTES & BULLETS -->
+        <div id="tabContent-graficos" class="p-5 sm:p-6 space-y-6 hidden">
+          
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            
+            <!-- Dropzone 1: Dibujo Plano (F5:O21) -->
+            <div id="dropzone_dibujo_plano" tabindex="0" class="border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/50 hover:bg-emerald-50/20 rounded-2xl p-5 transition focus:outline-none focus:ring-2 focus:ring-emerald-500 flex flex-col justify-between min-h-[260px] relative group cursor-pointer" onclick="document.getElementById('file_input_dibujo_plano').click()">
+              <input type="file" id="file_input_dibujo_plano" accept="image/*" class="hidden" onchange="handleFileInput(event, 'dibujo_plano')">
+              
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z"/></svg>
+                    1. Dibujo Plano (Geometral)
+                  </span>
+                  <span class="cell-badge font-bold">F5:O21</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mb-3">Plano vectorial frente y espalda sin color.</p>
+              </div>
+
+              <div id="preview_container_dibujo_plano" class="hidden my-2 flex flex-col items-center">
+                <img id="img_preview_dibujo_plano" class="max-h-40 rounded-lg shadow-sm border border-slate-200 object-contain bg-white p-1">
+                <div class="flex items-center gap-2 mt-2">
+                  <span id="img_info_dibujo_plano" class="text-[10px] text-slate-500 font-mono"></span>
+                  <button type="button" onclick="event.stopPropagation(); eliminarImagen('dibujo_plano')" class="text-[10px] text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded border border-rose-200">Eliminar</button>
+                </div>
+              </div>
+
+              <div id="empty_state_dibujo_plano" class="flex flex-col items-center justify-center py-6 text-center">
+                <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                </div>
+                <p class="text-xs font-semibold text-slate-700">Haz clic aquí o pega con <kbd class="px-1 py-0.5 bg-slate-200 rounded text-[10px]">Cmd+V</kbd></p>
+              </div>
+            </div>
+
+            <!-- Dropzone 2: Dibujo con Color (P5:Z21) -->
+            <div id="dropzone_dibujo_color" tabindex="0" class="border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/50 hover:bg-emerald-50/20 rounded-2xl p-5 transition focus:outline-none focus:ring-2 focus:ring-emerald-500 flex flex-col justify-between min-h-[260px] relative group cursor-pointer" onclick="document.getElementById('file_input_dibujo_color').click()">
+              <input type="file" id="file_input_dibujo_color" accept="image/*" class="hidden" onchange="handleFileInput(event, 'dibujo_color')">
+              
+              <div>
+                <div class="flex items-center justify-between mb-2">
+                  <span class="text-xs font-bold text-slate-800 flex items-center gap-1.5">
+                    <svg class="w-4 h-4 text-emerald-600" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 21a4 4 0 01-4-4V5a2 2 0 012-2h4a2 2 0 012 2v12a4 4 0 01-4 4zm0 0h12a2 2 0 002-2v-4a2 2 0 00-2-2h-2.343M11 7.343l1.657-1.657a2 2 0 012.828 0l2.829 2.829a2 2 0 010 2.828l-8.486 8.485M7 17h.01"/></svg>
+                    2. Dibujo con Color (Boceto / Render)
+                  </span>
+                  <span class="cell-badge font-bold">P5:Z21</span>
+                </div>
+                <p class="text-[11px] text-slate-500 mb-3">Boceto coloreado con la variante de color o estampado.</p>
+              </div>
+
+              <div id="preview_container_dibujo_color" class="hidden my-2 flex flex-col items-center">
+                <img id="img_preview_dibujo_color" class="max-h-40 rounded-lg shadow-sm border border-slate-200 object-contain bg-white p-1">
+                <div class="flex items-center gap-2 mt-2">
+                  <span id="img_info_dibujo_color" class="text-[10px] text-slate-500 font-mono"></span>
+                  <button type="button" onclick="event.stopPropagation(); eliminarImagen('dibujo_color')" class="text-[10px] text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded border border-rose-200">Eliminar</button>
+                </div>
+              </div>
+
+              <div id="empty_state_dibujo_color" class="flex flex-col items-center justify-center py-6 text-center">
+                <div class="w-12 h-12 rounded-full bg-emerald-50 text-emerald-600 flex items-center justify-center mb-2 group-hover:scale-110 transition">
+                  <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12"/></svg>
+                </div>
+                <p class="text-xs font-semibold text-slate-700">Haz clic aquí o pega con <kbd class="px-1 py-0.5 bg-slate-200 rounded text-[10px]">Cmd+V</kbd></p>
+              </div>
+            </div>
+
+          </div>
+
+          <hr class="border-slate-100">
+
+          <!-- Módulo Especial: REFERENTES (Texto o Imagen según la necesidad) -->
+          <div class="border border-indigo-200 bg-indigo-50/30 rounded-2xl p-4 sm:p-5 space-y-4">
+            <div class="flex items-center justify-between pb-2 border-b border-indigo-100">
+              <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full bg-indigo-500"></span>
+                <h4 class="font-bold text-sm text-indigo-950">Módulo de Referentes & Muestras de Apoyo</h4>
+              </div>
+              <span class="cell-badge bg-indigo-50 text-indigo-700 border-indigo-200">AA8:AO21</span>
+            </div>
+
+            <div class="grid grid-cols-1 lg:grid-cols-2 gap-4">
+              <!-- Opción A: Texto de Referente (AA9:AH14) -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Texto / Observaciones de Referente</span>
+                  <span class="cell-badge">AA9:AH14</span>
+                </label>
+                <textarea id="input_AA9" oninput="autoSaveCurrentBT()" rows="5" placeholder="Ej: Tomar como referente físico la silueta y cuello de la ref R8840 pero con 2cm menos de profundidad. Usar el trazo muestra del proyecto anterior." class="w-full bg-white border border-slate-300 rounded-xl p-3 text-xs focus:ring-2 focus:ring-indigo-500 outline-none transition"></textarea>
+              </div>
+
+              <!-- Opción B: Imagen de Referente (AI9:AO21) con Clipboard Paste -->
+              <div>
+                <label class="block text-xs font-bold text-slate-700 mb-1 flex items-center justify-between">
+                  <span>Foto / Gráfico de Referente</span>
+                  <span class="cell-badge">AI9:AO21</span>
+                </label>
+                
+                <div id="dropzone_referente" tabindex="0" class="border-2 border-dashed border-indigo-300 hover:border-indigo-500 bg-white hover:bg-indigo-50/20 rounded-xl p-4 transition focus:outline-none focus:ring-2 focus:ring-indigo-500 flex flex-col justify-center items-center min-h-[120px] relative group cursor-pointer text-center" onclick="document.getElementById('file_input_referente').click()">
+                  <input type="file" id="file_input_referente" accept="image/*" class="hidden" onchange="handleFileInput(event, 'referente')">
+                  
+                  <div id="preview_container_referente" class="hidden flex flex-col items-center">
+                    <img id="img_preview_referente" class="max-h-28 rounded-lg shadow-sm border border-slate-200 object-contain bg-white p-1">
+                    <div class="flex items-center gap-2 mt-1.5">
+                      <span id="img_info_referente" class="text-[10px] text-slate-500 font-mono"></span>
+                      <button type="button" onclick="event.stopPropagation(); eliminarImagen('referente')" class="text-[10px] text-rose-600 hover:text-rose-800 bg-rose-50 px-2 py-0.5 rounded border border-rose-200">Eliminar</button>
+                    </div>
+                  </div>
+
+                  <div id="empty_state_referente">
+                    <p class="text-xs font-semibold text-indigo-700">Pega la imagen de referente (<kbd class="px-1 py-0.5 bg-indigo-100 rounded text-[10px]">Cmd+V</kbd>)</p>
+                    <p class="text-[10px] text-slate-400 mt-0.5">o haz clic para buscar archivo</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <hr class="border-slate-100">
+
+          <!-- Bullets Comerciales (A54:O62) y Foto Modelación Frente (B37:I42) -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <!-- Bullets -->
+            <div>
+              <div class="flex items-center justify-between mb-1.5">
+                <label class="text-xs font-bold text-slate-700">Beneficios & Bullets de Catálogo (Diseño)</label>
+                <span class="cell-badge">A54:O62</span>
+              </div>
+              <textarea id="input_A54" oninput="autoSaveCurrentBT()" rows="4" placeholder="• Silueta semiajustada con excelente caída y ajuste&#10;• Tejido suave al tacto con alta transpirabilidad" class="w-full bg-slate-50 border border-slate-300 rounded-xl p-3 text-xs focus:ring-2 focus:ring-emerald-500 focus:bg-white outline-none transition"></textarea>
+            </div>
+
+            <!-- Foto Modelación Frente (B37:I42) -->
+            <div id="dropzone_foto" tabindex="0" class="border-2 border-dashed border-slate-300 hover:border-emerald-500 bg-slate-50/50 hover:bg-emerald-50/20 rounded-2xl p-4 transition focus:outline-none focus:ring-2 focus:ring-emerald-500 flex flex-col justify-between min-h-[140px] relative group cursor-pointer" onclick="document.getElementById('file_input_foto').click()">
+              <input type="file" id="file_input_foto" accept="image/*" class="hidden" onchange="handleFileInput(event, 'foto')">
+              
+              <div class="flex items-center justify-between mb-1">
+                <span class="text-xs font-bold text-slate-800">Foto de Modelación (Frente)</span>
+                <span class="cell-badge">B37:I42</span>
+              </div>
+
+              <div id="preview_container_foto" class="hidden my-1 flex flex-col items-center">
+                <img id="img_preview_foto" class="max-h-28 rounded-lg shadow-sm border border-slate-200 object-contain bg-white p-1">
+                <div class="flex items-center gap-2 mt-1">
+                  <span id="img_info_foto" class="text-[10px] text-slate-500 font-mono"></span>
+                  <button type="button" onclick="event.stopPropagation(); eliminarImagen('foto')" class="text-[10px] text-rose-600 hover:text-rose-800 bg-rose-50 hover:bg-rose-100 px-2 py-0.5 rounded border border-rose-200">Eliminar</button>
+                </div>
+              </div>
+
+              <div id="empty_state_foto" class="text-center py-2">
+                <p class="text-xs font-semibold text-slate-700">Pega aquí con <kbd class="px-1 py-0.5 bg-slate-200 rounded text-[10px]">Cmd+V</kbd> o haz clic</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+
+      </div>
+
+    </main>
+
+  </div>
+
+  <!-- Modal Descarga Unificada -->
+  <div id="modalDescargaUnificada" class="fixed inset-0 bg-slate-900/60 backdrop-blur-sm z-50 flex items-center justify-center p-4 hidden">
+    <div class="bg-white border border-slate-200 rounded-2xl max-w-lg w-full p-6 shadow-2xl space-y-4">
+      
+      <div class="flex justify-between items-center pb-3 border-b border-slate-100">
+        <div class="flex items-center gap-2.5">
+          <div class="p-2 bg-emerald-50 text-emerald-600 rounded-lg border border-emerald-100">
+            <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 16v1a3 3 0 003 3h10a3 3 0 003-3v-1m-4-4l-4 4m0 0l-4-4m4 4V4"/></svg>
+          </div>
+          <div>
+            <h3 class="font-bold text-base text-slate-800">Descargar Copia Unificada</h3>
+            <p class="text-xs text-slate-500">Inyecta todos los bocetos en tu plantilla y renombra las hojas con sus referencias</p>
+          </div>
+        </div>
+        <button onclick="cerrarModalDescarga()" class="text-slate-400 hover:text-slate-600 p-1.5 rounded-lg">
+          <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12"/></svg>
+        </button>
+      </div>
+
+      <div class="space-y-3 text-xs">
+        <div class="bg-slate-50 border border-slate-200 rounded-xl p-3.5 space-y-2">
+          <div class="flex justify-between items-center">
+            <span class="text-slate-600 font-medium">Plantilla base:</span>
+            <span class="font-mono font-bold text-slate-800 truncate max-w-[220px]" id="modal-tpl-name">PLANTILLA BOCETACION.xlsm</span>
+          </div>
+          <div class="flex justify-between items-center border-t border-slate-200/60 pt-2">
+            <span class="text-slate-600 font-medium">Hojas y Referencias a exportar:</span>
+            <span class="font-mono font-bold text-emerald-700 bg-emerald-100/80 px-2 py-0.5 rounded" id="modal-sheets-list">BT1</span>
+          </div>
+        </div>
+
+        <div id="unifyStatusContainer" class="hidden p-3 rounded-xl text-xs space-y-1"></div>
+      </div>
+
+      <div class="flex justify-end gap-2 pt-2 border-t border-slate-100">
+        <button onclick="cerrarModalDescarga()" class="text-xs text-slate-600 hover:text-slate-800 font-semibold px-4 py-2 rounded-xl transition">
+          Cancelar
+        </button>
+        <button id="btnEjecutarUnificado" onclick="procesarDescargaUnificada()" class="text-xs bg-emerald-600 hover:bg-emerald-500 text-white font-bold px-5 py-2.5 rounded-xl transition flex items-center gap-2 shadow-md shadow-emerald-900/20">
+          <span id="btnUnifyText">Generar y Descargar Libro Completo</span>
+          <span id="btnUnifySpinner" class="hidden w-3.5 h-3.5 border-2 border-white border-t-transparent rounded-full animate-spin"></span>
+        </button>
+      </div>
+
+    </div>
+  </div>
+
+  <script>
+    const ALL_SAP_MATERIALS = [{"code": "ACTIVE", "desc": "ACTIVE"}, {"code": "ACTIVE PFD", "desc": "ACTIVE"}, {"code": "6000007", "desc": "ADORNO FILIGRANA NIQ 0319450002"}, {"code": "ANA", "desc": "ANA"}, {"code": "ANA BEIGE", "desc": "ANA"}, {"code": "ANA BLA", "desc": "ANA"}, {"code": "ANA PFD", "desc": "ANA"}, {"code": "ANDRES", "desc": "ANDRES"}, {"code": "6002536", "desc": "ARGOLLA REF 6151000 10MM NIQUEL BRILLANT"}, {"code": "AZALEA", "desc": "AZALEA"}, {"code": "AZALEA BLA", "desc": "AZALEA"}, {"code": "AZALEA PFD", "desc": "AZALEA"}, {"code": "BERLIN", "desc": "BERLIN"}, {"code": "BERLIN BEIGE", "desc": "BERLIN"}, {"code": "BERLIN BLA", "desc": "BERLIN"}, {"code": "BERLIN PFD", "desc": "BERLIN"}, {"code": "8001969", "desc": "BOLSA 40X48CM MAS 5 CON CINTA TISSINI"}, {"code": "8001397", "desc": "BOLSA AZZ 17X23 MAS 5CM"}, {"code": "8001398", "desc": "BOLSA AZZ 23X30 MAS 5CM"}, {"code": "8001948", "desc": "BOLSA AZZ 30X28 DENIM"}, {"code": "8001410", "desc": "BOLSA AZZ 30X28 MAS 5CM"}, {"code": "8001835", "desc": "BOLSA AZZ 40X48 MAS 5CM"}, {"code": "8001396", "desc": "BOLSA AZZ 9X14 MAS 5CM"}, {"code": "8000937", "desc": "BOLSA AZZ POLIPROPILEN 17.5CMX23CM TRANS"}, {"code": "8000948", "desc": "BOLSA AZZ POLIPROPILEN 23CMX33CM TRANS"}, {"code": "8000953", "desc": "BOLSA AZZ POLIPROPILEN 9CM X14CM TRANS"}, {"code": "8001701", "desc": "BOLSA LIVV 14X14 MAS 5CM"}, {"code": "8001703", "desc": "BOLSA LIVV 17X23 MAS 5CM"}, {"code": "8001739", "desc": "BOLSA LIVV 23X30 MAS 5CM"}, {"code": "8001702", "desc": "BOLSA LIVV 30X28 MAS 5CM"}, {"code": "8001836", "desc": "BOLSA LIVV 40X48 MAS 5CM"}, {"code": "8001720", "desc": "BOLSA LIVV PP OB09CMX14CM"}, {"code": "8001731", "desc": "BOLSA LIVV ZIPPER VENA 40X30CM GEN TRAN"}, {"code": "8001963", "desc": "BOLSA TISS 30X28CM MAS 5 CON CINTA"}, {"code": "6000124", "desc": "BOTON 0188B 18L 4H CB TRANSPARENTE"}, {"code": "6000048", "desc": "BOTON ABACO 32L 4H CS NEGRO 0563"}, {"code": "6001970", "desc": "BOTON AMISTOSO 4HSB 36L LAMINA LUJOSO 20"}, {"code": "6003120", "desc": "BOTON BASTON ANGOLA 4H 28L CAFE 7"}, {"code": "6003061", "desc": "BOTON BROOME 1 4H 36L SB CAFE"}, {"code": "6003001", "desc": "BOTON COMINO 2H SB 32L COLOR 0013"}, {"code": "6000063", "desc": "BOTON CONSUL 18L 2H CB TRANSPARENTE"}, {"code": "6000064", "desc": "BOTON CONSUL 24L 2H CB TRANSPARENTE"}, {"code": "6002950", "desc": "BOTON EFECTO REF2036 30L 2H SB NATURAL"}, {"code": "6000086", "desc": "BOTON ELEGANCIA 2H 36L SB NEGRO"}, {"code": "6002866", "desc": "BOTON ELITE 18L 4H CB AZUL 574 TINT"}, {"code": "6002093", "desc": "BOTON ELITE 18L 4H CB BLANCO TINT"}, {"code": "6003164", "desc": "BOTON ELITE 18L 4H CB NEGRO TINT"}, {"code": "6002901", "desc": "BOTON ELITE 18L 4H CB VINO 789 TINT"}, {"code": "6001880", "desc": "BOTON ENDURECIDO 32L 2H SB MADERA 004"}, {"code": "6002257", "desc": "BOTON FAVELA 2H 44L NEGRO"}, {"code": "6001709", "desc": "BOTON FUSIONADO 4HCB 18L COLOR MASA 0008"}, {"code": "6003304", "desc": "BOTON LISO 27L COBRE PAVON DENIM"}, {"code": "6003545", "desc": "BOTON LISO 27L LATON BRILLANTE DENIM"}, {"code": "6003305", "desc": "BOTON LISO 27L PAVON NEGRO NIQUEL DENIM"}, {"code": "6003306", "desc": "BOTON LISO 31L COBRE PAVON DENIM"}, {"code": "6003546", "desc": "BOTON LISO 31L LATON BRILLANTE DENIM"}, {"code": "6002293", "desc": "BOTON LISO 31L NIQUEL PINTURA BLANCO"}, {"code": "6003307", "desc": "BOTON LISO 31L PAVON NEGRO NIQUEL DENIM"}, {"code": "6000114", "desc": "BOTON MARITIMO 24L 4H CB 017 BLANCO"}, {"code": "6000115", "desc": "BOTON MARITIMO 32L 4H CB 017 BLANCO"}, {"code": "6001888", "desc": "BOTON MONACO 2H 18L AZUL 544"}, {"code": "6000168", "desc": "BOTON REF 1416 20L 4H BLANCO ARO DORADO"}, {"code": "6003060", "desc": "BOTON REF 2112B 16L 2H NACAR"}, {"code": "6003069", "desc": "BOTON REF 2112B 18L 2H NACAR"}, {"code": "6003077", "desc": "BOTON REF 2112B 20L 2H NACAR"}, {"code": "6003113", "desc": "BOTON REF 229 18L 2H CB BLANCO PERLADO"}, {"code": "6002978", "desc": "BOTON REF2082 24L 4H SB CAFE M257"}, {"code": "6001772", "desc": "BOTON REF2103 36L 4H CB GRIS 275"}, {"code": "6003160", "desc": "BOTON TENTACION 18L 2H CB BLANCO TINT"}, {"code": "6000188", "desc": "BOTON TENTACION 18L 2H CB NEGRO TINT"}, {"code": "6000190", "desc": "BOTON TENTACION 18L 2H CB RJ 391 TINT"}, {"code": "6000186", "desc": "BOTON TENTACION 18L 2H SB AZ 574 TINT"}, {"code": "6000195", "desc": "BOTON TENTACION 18L 2H SB GR 891 TINT"}, {"code": "6000208", "desc": "BOTON TENTACION 24L 2H SB AZ 574 TINT"}, {"code": "6000202", "desc": "BOTON TENTACION 24L 2H SB NEGRO TINT"}, {"code": "6000212", "desc": "BOTON TENTACION 30L 2H CB NEGRO TINT"}, {"code": "6001867", "desc": "BOTON TENTACION 30L 2H SB AZ 574 TINT"}, {"code": "6000225", "desc": "BOTON TORINO 18L CB NEGRO"}, {"code": "6000226", "desc": "BOTON TULCAN 4H SB 18L COLOR 0013"}, {"code": "6002555", "desc": "BOTON TULCAN 4H SB 24L COLOR 0013"}, {"code": "6001986", "desc": "BOTON TULCAN 4H SB 28L COLOR 0013"}, {"code": "6002556", "desc": "BOTON TULCAN 4H SB 32L COLOR 0013"}, {"code": "6001987", "desc": "BOTON TULCAN 4H SB 36L COLOR 0013"}, {"code": "6002744", "desc": "BOTON ZAMAC DE PATA 18L LATON BRILLANTE"}, {"code": "6001632", "desc": "BOTON ZAMAC LISO 2H 18L NIQUEL BRILLANTE"}, {"code": "6002906", "desc": "BOTON ZAMAC LISO 4H 18L COBRE PAVON"}, {"code": "6003062", "desc": "BOTON ZAMAC LISO 4H 18L NIQUEL BRILLANTE"}, {"code": "6002927", "desc": "BOTON ZAMAC LISO 4H 18L PAVON NEGRO NIQ"}, {"code": "6003177", "desc": "BOTON ZAMAC LISO 4H 24L COBRE PAVON"}, {"code": "6003178", "desc": "BOTON ZAMAC LISO 4H 24L PAVON NEGRO NIQU"}, {"code": "6003179", "desc": "BOTON ZAMAC LISO 4H 31L COBRE PAVON"}, {"code": "6001978", "desc": "BOTON ZAMAC LISO 4H 31L NIQUEL BRILLANTE"}, {"code": "6003180", "desc": "BOTON ZAMAC LISO 4H 31L PAVON NEGRO NIQ"}, {"code": "6001688", "desc": "BROCHE DUMBITO X 4P 24L NGO SEMI BRI"}, {"code": "6002007", "desc": "BROCHE DUMBITO X 4P 27L BCO SEMI BRI"}, {"code": "6001812", "desc": "BROCHE DUMBITO X 4P 27L LAT PAV"}, {"code": "6001634", "desc": "BROCHE DUMBITO X 4P 27L NIQ BRI"}, {"code": "6001868", "desc": "BROCHE SCOVILL 16L NIQ/BRI DOBLE CORONA"}, {"code": "6000241", "desc": "CADENA CONTINUA NIQUEL 3 NEGRO"}, {"code": "8001532", "desc": "CAJA AZZ ROPA 50CMX29CMX22CM NVA-CJ"}, {"code": "8001721", "desc": "CAJA LIVV ROPA 50CMX29CMX22CM-CJ"}, {"code": "CHERRY", "desc": "CHERRY"}, {"code": "6001637", "desc": "CINTA BANDERA 337/30 03-21-01-21-03 6907"}, {"code": "6001813", "desc": "CINTA BANDERA REF 337 25MM 6684"}, {"code": "6001993", "desc": "CINTA EST GRLPWR 20MM BL/NG/AZ/AM/RJ"}, {"code": "6002246", "desc": "CINTA FAYA EST HPRINT-8 25MM ZEBRA PLATA"}, {"code": "6002193", "desc": "CINTA FAYA IND 18MM VER NEON 1527"}, {"code": "6002176", "desc": "CINTA FAYA INDUS 38MM ROSA 3223"}, {"code": "6002136", "desc": "CINTA FAYA REAL ADVENT 25MM NARANJA 3122"}, {"code": "6001825", "desc": "CINTA FAYA REF 385 10MM AZUL OSC 22"}, {"code": "6000259", "desc": "CINTA NYLON DP661T 20MMX400 MTS"}, {"code": "6002264", "desc": "CINTA POL DECO 23MM AZU/DOR/AZU/BLA/ROJ"}, {"code": "6000262", "desc": "CINTA RESINA 9CMX250 MTS"}, {"code": "6001870", "desc": "CINTA RUCHE LOVE 5.5CM BEIGE"}, {"code": "6001871", "desc": "CINTA RUCHE LOVE 5.5CM NEGRO"}, {"code": "6000267", "desc": "CINTA SATINADA 13MM CAFE OSC C36"}, {"code": "6000269", "desc": "CINTA SATINADA 13MM GRIS C-7"}, {"code": "6001638", "desc": "CINTA SATINADA 25MM GRIS 06"}, {"code": "6002737", "desc": "CINTA SATINADA 35MM AZUL OSCURO 4506"}, {"code": "6000281", "desc": "CINTA SATINADA 9MM CASTANO OSCURO C-65"}, {"code": "6000285", "desc": "CINTA SATINADA NEGRO C2 7 MM"}, {"code": "6003360", "desc": "CINTA TISS BANDERA COLOMBIA REF334 15MM"}, {"code": "COLIN", "desc": "COLIN"}, {"code": "COMANECI", "desc": "COMANECI"}, {"code": "6003223", "desc": "CORDON ALG N5 A1 CON ALMA BEI 13-0907"}, {"code": "6002524", "desc": "CORDON BORLA BA-05 95CM NEGRO"}, {"code": "6000292", "desc": "CORDON ELASTICO 3MM NEGRO 19-4005"}, {"code": "6002633", "desc": "CORDON POL N6 110CM BLANCO PUNT ACET"}, {"code": "6002705", "desc": "CORDON POL N6 110CM GRI 71 PUNT ACET"}, {"code": "6002706", "desc": "CORDON POL N6 110CM NEGRO PUNT ACET"}, {"code": "6003095", "desc": "CORDON POL N6 150CM NACAR 8013 PUNT ENC"}, {"code": "6003097", "desc": "CORDON POL N6 150CM NEGRO PUNT ENC"}, {"code": "6002679", "desc": "CORDON POL N6 60CM BLANCO PUNT ACET"}, {"code": "6002707", "desc": "CORDON POL N6 60CM GRIS 71 PUNT ACET"}, {"code": "6002632", "desc": "CORDON POL N6 60CM NEGRO PUNT ACET"}, {"code": "6002413", "desc": "CORDON POL N6 CON ALMA CRUDO PINTAS"}, {"code": "6000295", "desc": "CORDON POL N6 CON ALMA NEGRO"}, {"code": "6002208", "desc": "CREMALLERA COB 4.5 FJ M4 10CM APT 581"}, {"code": "6002209", "desc": "CREMALLERA COB 4.5 FJ M4 10CM AZUL 560"}, {"code": "6002211", "desc": "CREMALLERA COB 4.5 FJ M4 10CM NEGRO 580"}, {"code": "6002212", "desc": "CREMALLERA COB 4.5 FJ M4 12CM APT 581"}, {"code": "6002213", "desc": "CREMALLERA COB 4.5 FJ M4 12CM AZUL 560"}, {"code": "6002215", "desc": "CREMALLERA COB 4.5 FJ M4 12CM NEGRO 580"}, {"code": "6002225", "desc": "CREMALLERA COB 4.5 FJ M4 14CM APT 581"}, {"code": "6002226", "desc": "CREMALLERA COB 4.5 FJ M4 14CM AZUL 560"}, {"code": "6002228", "desc": "CREMALLERA COB 4.5 FJ M4 14CM NEGRO 580"}, {"code": "6002229", "desc": "CREMALLERA COB 4.5 FJ M4 16CM APT 581"}, {"code": "6002230", "desc": "CREMALLERA COB 4.5 FJ M4 16CM AZUL 560"}, {"code": "6002232", "desc": "CREMALLERA COB 4.5 FJ M4 16CM NEGRO 580"}, {"code": "6002233", "desc": "CREMALLERA COB 4.5 FJ M4 18CM APT 581"}, {"code": "6002234", "desc": "CREMALLERA COB 4.5 FJ M4 18CM AZUL 560"}, {"code": "6002236", "desc": "CREMALLERA COB 4.5 FJ M4 18CM NEGRO 580"}, {"code": "6002216", "desc": "CREMALLERA COB 4.5 FJ M4 6CM APT 581"}, {"code": "6002217", "desc": "CREMALLERA COB 4.5 FJ M4 6CM AZUL 560"}, {"code": "6002219", "desc": "CREMALLERA COB 4.5 FJ M4 6CM NEGRO 580"}, {"code": "6002220", "desc": "CREMALLERA COB 4.5 FJ M4 8CM APT 581"}, {"code": "6002221", "desc": "CREMALLERA COB 4.5 FJ M4 8CM AZUL 560"}, {"code": "6002223", "desc": "CREMALLERA COB 4.5 FJ M4 8CM NEGRO 580"}, {"code": "6001920", "desc": "CREMALLERA COB 5 FIJ 12CM ROJTIN103 DC74"}, {"code": "6000317", "desc": "CREMALLERA COB FIJ 10CM OLIVA TIER DCA75"}, {"code": "6000360", "desc": "CREMALLERA COBRE 4.5 FIJ 9CM AZUL 139"}, {"code": "6001763", "desc": "CREMALLERA LAT 5 FIJ 55CM BLANC"}, {"code": "6001791", "desc": "CREMALLERA LAT 5 FIJ 60CM BLANC"}, {"code": "6001718", "desc": "CREMALLERA LAT VIE 5FJ 58CM AZ22 DCLIM66"}, {"code": "6001764", "desc": "CREMALLERA LAT VIE FIJ 5 55CM NGR"}, {"code": "6001765", "desc": "CREMALLERA LAT VIE FIJ 5 60CM NGR"}, {"code": "6001792", "desc": "CREMALLERA LAT VIEJ 5 FIJ 10CM AZ22 DC74"}, {"code": "6002203", "desc": "CREMALLERA LAT VIEJO 5 FIJ 60CM BLANCO"}, {"code": "6001728", "desc": "CREMALLERA LATON FIJA 5 AZUL22 30CM"}, {"code": "6001729", "desc": "CREMALLERA LATON FIJA 5 AZUL22 33CM"}, {"code": "6000405", "desc": "CREMALLERA LATON V5 FIJ 8CM VINOTINTO 37"}, {"code": "6001827", "desc": "CREMALLERA LT VIE FJ 5 58CM NG 02DC LM66"}, {"code": "6000419", "desc": "CREMALLERA NIQ 4.5 FIJ AUT 7CM AGUAM 15"}, {"code": "6000436", "desc": "CREMALLERA NIQ 4.5 FIJ AUT 7CM GRIS F 71"}, {"code": "6000416", "desc": "CREMALLERA NIQ 4.5 SEP 50CM NEGRO DC 224"}, {"code": "6000417", "desc": "CREMALLERA NIQ 4.5 SEP 55CM GRIS06 DC177"}, {"code": "6000418", "desc": "CREMALLERA NIQ 4.5 SEP 55CM NEGRO DC 224"}, {"code": "6000421", "desc": "CREMALLERA NIQ 45 AUTO FIJ 12CM AZUL 148"}, {"code": "6000422", "desc": "CREMALLERA NIQ 45 AUTO FIJ 12CM GRIS 71"}, {"code": "6000424", "desc": "CREMALLERA NIQ 45 AUTO FIJ 7CM GRIS 71"}, {"code": "6000425", "desc": "CREMALLERA NIQ 45 AUTO FIJ 7CM ROJO 75"}, {"code": "6001774", "desc": "CREMALLERA NIQ 5 AUT FIJ 10CM NEGRO"}, {"code": "6001921", "desc": "CREMALLERA NIQ 5 FIJ NON LOCK 15CM NEG"}, {"code": "6002167", "desc": "CREMALLERA NIQ 5 SEP 60CM VINO864 DA8R25"}, {"code": "6000656", "desc": "CREMALLERA NIQ 5 SEP AUTO 50CM NEGRO SD"}, {"code": "6001723", "desc": "CREMALLERA NIQ FIJ 4.5 10CM NG DESTMAR81"}, {"code": "6000440", "desc": "CREMALLERA NIQ45 AUTO FIJ 12CM MORADO 57"}, {"code": "6000442", "desc": "CREMALLERA NIQ45 AUTO FIJ 7CM MORADO 57"}, {"code": "6000449", "desc": "CREMALLERA NIQUEL 4.5 SEP 50 CM ROJO 03"}, {"code": "6000452", "desc": "CREMALLERA NIQUEL 4.5 SEP 55CM VINO 37"}, {"code": "6000453", "desc": "CREMALLERA NIQUEL 4.5 SEP 60CM VINO 37"}, {"code": "6000459", "desc": "CREMALLERA NIQUEL 5 SEP 54CM NATURAL 32"}, {"code": "6000466", "desc": "CREMALLERA NQ 4.5 FIJ 30CM OLIVA TIER 52"}, {"code": "6003055", "desc": "CREMALLERA POL 3 FIJ 12CM VERDE 535"}, {"code": "6000497", "desc": "CREMALLERA POL 3 FIJ 15CM AZUL REY"}, {"code": "6000522", "desc": "CREMALLERA POL 3 FIJ 20CM AGUAMARINA 59"}, {"code": "6000507", "desc": "CREMALLERA POL 3 FIJ 20CM FUCSIA 58"}, {"code": "6000533", "desc": "CREMALLERA POL 3 FIJ 30CM ROJO 03"}, {"code": "6000549", "desc": "CREMALLERA POL 3 FIJ 40CM AGUAMARINA 520"}, {"code": "6000399", "desc": "CREMALLERA POL 3 INV FIJ AUT 20CM VER 38"}, {"code": "6000565", "desc": "CREMALLERA POL 3 INV FIJ AUT 30CM BLANCO"}, {"code": "6001887", "desc": "CREMALLERA POL 4 FIJ 50 CM NEGRO DC78"}, {"code": "6000593", "desc": "CREMALLERA POL 4 SEMI FIJ 20CM GRIS 71"}, {"code": "6003026", "desc": "CREMALLERA POL 5 SEP 43CM L-N32 NEGRO"}, {"code": "6003027", "desc": "CREMALLERA POL 5 SEP 46CM L-N32 NEGRO"}, {"code": "6003013", "desc": "CREMALLERA POL 5 SEP 48CM L-N32 NEGRO"}, {"code": "6002749", "desc": "CREMALLERA POL 5 SEP 50CM L-N32 BLANCO"}, {"code": "6002356", "desc": "CREMALLERA POL 5 SEP 50CM L-N32 NEGRO"}, {"code": "6002200", "desc": "CREMALLERA POL 5 SEP 55CM L-N32 BLANCO"}, {"code": "6002526", "desc": "CREMALLERA POL 5 SEP 55CM L-N32 NEGRO"}, {"code": "6002017", "desc": "CREMALLERA POL 5 SEP 60CM L-N32 BLANCO"}, {"code": "6000629", "desc": "CREMALLERA POL 5 SEP 65CM L-N32 NEGRO"}, {"code": "6000651", "desc": "CREMALLERA POL 6 SEMI FIJ 15CM NG PLAT"}, {"code": "6000644", "desc": "CREMALLERA POL 6 SEMI FIJ 31CM NEGRO"}, {"code": "6000612", "desc": "CREMALLERA POL 6 SEP 35CM GRI06 CLIP2 67"}, {"code": "6003007", "desc": "CREMALLERA POL 6 SEP AUT 35CM NEGRO"}, {"code": "6001996", "desc": "CREMALLERA POL 6 SEP AUT 40CM BLANCO"}, {"code": "6002958", "desc": "CREMALLERA POL 6 SEP AUT 40CM GRIS 06"}, {"code": "6001849", "desc": "CREMALLERA POL 6 SEP AUT 40CM NEGRO"}, {"code": "6003011", "desc": "CREMALLERA POL 6 SEP AUT 43CM GRIS 06"}, {"code": "6001997", "desc": "CREMALLERA POL 6 SEP AUT 45CM BLANCO"}, {"code": "6001907", "desc": "CREMALLERA POL 6 SEP AUT 45CM GRIS 06"}, {"code": "6001850", "desc": "CREMALLERA POL 6 SEP AUT 45CM NEGRO"}, {"code": "6003012", "desc": "CREMALLERA POL 6 SEP AUT 46CM GRIS 06"}, {"code": "6003028", "desc": "CREMALLERA POL 6 SEP AUT 48CM GRIS 06"}, {"code": "6003142", "desc": "CREMALLERA POL 6 SEP AUT 50CM AZUL 139"}, {"code": "6002015", "desc": "CREMALLERA POL 6 SEP AUT 50CM GRIS 06"}, {"code": "6003029", "desc": "CREMALLERA POL 6 SEP AUT 51CM GRIS 06"}, {"code": "6003014", "desc": "CREMALLERA POL 6 SEP AUT 51CM NEGRO"}, {"code": "6001649", "desc": "CREMALLERA POL 6 SEP AUT 55CM AZUL 139"}, {"code": "6002016", "desc": "CREMALLERA POL 6 SEP AUT 55CM GRIS 06"}, {"code": "6000618", "desc": "CREMALLERA POL 6 SEP AUT 60CM AZUL 139"}, {"code": "6000619", "desc": "CREMALLERA POL 6 SEP AUT 60CM GRIS 06"}, {"code": "6000625", "desc": "CREMALLERA POL 6 SEP AUT 60CM NEGRO"}, {"code": "6003089", "desc": "CREMALLERA POL 6 SEP AUT 60CM PURPUR 693"}, {"code": "6000627", "desc": "CREMALLERA POL 6 SEP AUT 65CM AZUL 139"}, {"code": "6002781", "desc": "CREMALLERA POL 6 SEP AUT 65CM BLANCO"}, {"code": "6000632", "desc": "CREMALLERA POL 6 SEP AUT 65CM GRIS 06"}, {"code": "6000626", "desc": "CREMALLERA POL 6 SEP AUT 70CM AZUL 139"}, {"code": "6002019", "desc": "CREMALLERA POL 6 SEP AUT 70CM BLANCO"}, {"code": "6000555", "desc": "CREMALLERA POL 6 SEP AUT 70CM GRIS 06"}, {"code": "6000630", "desc": "CREMALLERA POL 6 SEP AUT 70CM NEGRO"}, {"code": "6000623", "desc": "CREMALLERA POL 6 SEP AUT 75CM AZUL 139"}, {"code": "6002842", "desc": "CREMALLERA POL 6 SEP AUT 75CM BLANCO"}, {"code": "6002575", "desc": "CREMALLERA POL 6 SEP AUT 75CM GRIS 06"}, {"code": "6002940", "desc": "CREMALLERA POL 6 SEP AUT 75CM NEGRO"}, {"code": "6003117", "desc": "CREMALLERA POL 6 SEP AUT 80CM AZUL 139"}, {"code": "6003131", "desc": "CREMALLERA POL 6 SEP AUT 80CM BLANCO"}, {"code": "6003112", "desc": "CREMALLERA POL 6 SEP AUT 80CM NEGRO"}, {"code": "DANNA", "desc": "DANNA"}, {"code": "DANNA BEIGE", "desc": "DANNA"}, {"code": "DANNA BLA", "desc": "DANNA"}, {"code": "DANNA PFD", "desc": "DANNA"}, {"code": "6002386", "desc": "ELASTICO AFEL REF 301 3.5CM FUCSIA 2278"}, {"code": "6001652", "desc": "ELASTICO AFEL REF301 3.5CM FUC NEON 2914"}, {"code": "6001654", "desc": "ELASTICO AFEL REF301 3.5CM VER NEON 6352"}, {"code": "6000671", "desc": "ELASTICO BASE BLANCO CARGADERA10MM 36010"}, {"code": "6000673", "desc": "ELASTICO BASE MORAS BLANCO 9MM 10339MIC"}, {"code": "6000674", "desc": "ELASTICO BASE MORAS FUCSIA 9MM 10339MIC"}, {"code": "6000678", "desc": "ELASTICO BASE REF 2000-35 35MM BLANCO"}, {"code": "6000680", "desc": "ELASTICO BASE REF 2000-35 35MM NEGRO"}, {"code": "6000665", "desc": "ELASTICO BASE REF2000-20 20MM BLANCO"}, {"code": "6000666", "desc": "ELASTICO BASE REF2000-20 20MM NEGRO"}, {"code": "6003051", "desc": "ELASTICO BASE REF3335 35MM VINO 4128"}, {"code": "6000688", "desc": "ELASTICO CROCHET REF PB 10CM CRUDO"}, {"code": "6001892", "desc": "ELASTICO CROCHET REF PB 10CM NEGRO"}, {"code": "6000684", "desc": "ELASTICO CROCHET REF PB 12CM NEGRO"}, {"code": "6001767", "desc": "ELASTICO CROCHET REF PB 1CM CRUDO"}, {"code": "6002688", "desc": "ELASTICO CROCHET REF PB 1CM NEGRO"}, {"code": "6000687", "desc": "ELASTICO CROCHET REF PB 2CM CRUDO"}, {"code": "6002080", "desc": "ELASTICO CROCHET REF PB 2CM NEGRO"}, {"code": "6000689", "desc": "ELASTICO CROCHET REF PB 3CM CRUDO"}, {"code": "6000690", "desc": "ELASTICO CROCHET REF PB 4CM CRUDO"}, {"code": "6000700", "desc": "ELASTICO CROCHET REF PB 4CM NEGRO"}, {"code": "6002401", "desc": "ELASTICO CROCHET REF PB 5MM CRUDO"}, {"code": "6000691", "desc": "ELASTICO CROCHET REF PB 6CM CRUDO"}, {"code": "6002100", "desc": "ELASTICO CROCHET REF PB 6CM NEGRO"}, {"code": "6000686", "desc": "ELASTICO CROCHET REF PB 7MM CRUDO"}, {"code": "6000701", "desc": "ELASTICO CROCHET REF PB 7MM NEGRO"}, {"code": "6003006", "desc": "ELASTICO LISO SIN MARCAR 4CM IMP GR-NG"}, {"code": "6000699", "desc": "ELASTICO MARCADO REF0140 AZZORTI NEGRO"}, {"code": "6000708", "desc": "ELASTICO SEDA 3MM BLANCO 11-0601"}, {"code": "6000707", "desc": "ELASTICO SEDA 3MM NEGRO 19-4005"}, {"code": "6001656", "desc": "EMBONE SATIN NEGRO 72"}, {"code": "7500012", "desc": "ENCAJE 1.6CM DONALD NEW MEN C408 16-4706"}, {"code": "7500013", "desc": "ENCAJE 1.6CM DONALD NEW MOR C605 16-3205"}, {"code": "6002445", "desc": "ENCAJE ELAS 200513 BIMBA 30MM VIN19-1940"}, {"code": "6002444", "desc": "ENCAJE ELAST 200513 BIMBA 30MM VERDE"}, {"code": "7500722", "desc": "ENCAJE LETIZIA REF200363 17.5CM BLANCO"}, {"code": "7500723", "desc": "ENCAJE LETIZIA REF200363 17.5CM NEGRO"}, {"code": "7500453", "desc": "ENCAJE MERIT REF 200092 5CM BLC 11-0601"}, {"code": "7500415", "desc": "ENCAJE MERIT REF 200092 5CM NEG 19-4005"}, {"code": "7501154", "desc": "ENCAJE MERIT REF200092 5CM AZOSC 19-4024"}, {"code": "7501155", "desc": "ENCAJE MERIT REF200092 5CM CAQUI 14-1209"}, {"code": "7501156", "desc": "ENCAJE MERIT REF200092 5CM PETR 19-4340"}, {"code": "7501157", "desc": "ENCAJE MERIT REF200092 5CM ROSA 15-1611"}, {"code": "7501158", "desc": "ENCAJE MERIT REF200092 5CM SANG 19-2047"}, {"code": "7501159", "desc": "ENCAJE MERIT REF200092 5CM VINO 19-1528"}, {"code": "7501160", "desc": "ENCAJE MERIT REF200093 3CM AZOSC 19-4024"}, {"code": "7500454", "desc": "ENCAJE MERIT REF200093 3CM BLCO 11-0601"}, {"code": "7501161", "desc": "ENCAJE MERIT REF200093 3CM CAQUI 14-1209"}, {"code": "7500545", "desc": "ENCAJE MERIT REF200093 3CM NEGRO 19-4005"}, {"code": "7501162", "desc": "ENCAJE MERIT REF200093 3CM ROSA 15-1611"}, {"code": "7501163", "desc": "ENCAJE MERIT REF200093 3CM VINO 19-1528"}, {"code": "7500521", "desc": "ENCAJE PRINCESA R4D2000120001 1.5 CM BCO"}, {"code": "7500449", "desc": "ENCAJE REF 1138 4CM AZUL OSC 483 19-3921"}, {"code": "7500039", "desc": "ENCAJE REF 1138 4CM BLANCO 11-0601"}, {"code": "7500054", "desc": "ENCAJE REF 1138 4CM NEGRO 19-4005"}, {"code": "7500070", "desc": "ENCAJE REF 1216 16CM GRIS"}, {"code": "7500071", "desc": "ENCAJE REF 1216 16CM MARFIL"}, {"code": "7500072", "desc": "ENCAJE REF 1216 16CM NEGRO"}, {"code": "7500078", "desc": "ENCAJE REF 1216 16CM PETROLEO 18-4522"}, {"code": "7500080", "desc": "ENCAJE REF 1727 5CM BLANCO"}, {"code": "7500270", "desc": "ENCAJE REF 1727 5CM ROJO 783"}, {"code": "7500271", "desc": "ENCAJE REF 1727 5CM ROSA 418-2"}, {"code": "7500081", "desc": "ENCAJE REF 2014 2CM AMARILLO"}, {"code": "7500089", "desc": "ENCAJE REF 2014 2CM MARFIL TENIDO"}, {"code": "7500777", "desc": "ENCAJE REF 239 17CM BLANCO"}, {"code": "7500819", "desc": "ENCAJE REF 239 17CM MARFIL"}, {"code": "7500782", "desc": "ENCAJE REF 239 17CM NEGRO"}, {"code": "7500355", "desc": "ENCAJE REF 5123 15CM ROJO 877"}, {"code": "7500178", "desc": "ENCAJE REF 732 5.5CM 4280T AZUL CLARO"}, {"code": "7500179", "desc": "ENCAJE REF 732 5.5CM 7058 BEIGE"}, {"code": "7500582", "desc": "ENCAJE REF 8182 3CM CORAL 1256"}, {"code": "6001749", "desc": "ENCAJE REF 8182 3CM MOSTAZA 594 N2"}, {"code": "7500663", "desc": "ENCAJE REF 8727 20.5CM BLANCO 11-0601"}, {"code": "7501065", "desc": "ENCAJE REF 8727 20.5CM ROS 1651 13-2802"}, {"code": "7500107", "desc": "ENCAJE REF1208 7.5CM BLANCO"}, {"code": "7500019", "desc": "ENCAJE REF1406 6CM BLANCO"}, {"code": "7500021", "desc": "ENCAJE REF1406 6CM MARFIL 11-0606"}, {"code": "7500023", "desc": "ENCAJE REF1406 6CM NEGRO 19-4005"}, {"code": "7500496", "desc": "ENCAJE REF7988 20.5CM BLANCO 11-0601"}, {"code": "7501083", "desc": "ENCAJE REF8453 20.5CM AZ MD 1652 17-4021"}, {"code": "7501164", "desc": "ENCAJE REF8453 20.5CM AZOSC 1840 19-4024"}, {"code": "7501084", "desc": "ENCAJE REF8453 20.5CM AZPET 1656 19-4340"}, {"code": "7501085", "desc": "ENCAJE REF8453 20.5CM BEREN 1653 18-1710"}, {"code": "7500503", "desc": "ENCAJE REF8453 20.5CM BLANCO 11-0601"}, {"code": "7501165", "desc": "ENCAJE REF8453 20.5CM CAQUI 1842 14-1209"}, {"code": "7500512", "desc": "ENCAJE REF8453 20.5CM MARFIL 11-0108"}, {"code": "7500477", "desc": "ENCAJE REF8453 20.5CM NEGRO 19-4005"}, {"code": "7501166", "desc": "ENCAJE REF8453 20.5CM ROSA 1839 15-1611"}, {"code": "7501086", "desc": "ENCAJE REF8453 20.5CM SANGR 1657 19-2047"}, {"code": "7501167", "desc": "ENCAJE REF8727 20.5CM AZOSC 1840 19-4024"}, {"code": "7501168", "desc": "ENCAJE REF8727 20.5CM CAQUI 1842 14-1209"}, {"code": "7501169", "desc": "ENCAJE REF8727 20.5CM HABA 1841 16-1334"}, {"code": "7500482", "desc": "ENCAJE REF8727 20.5CM NEGRO 19-4005"}, {"code": "7501188", "desc": "ENCAJE REF1406 6CM NG 19-4005 FABRI"}, {"code": "7501189", "desc": "ENCAJE REF8453 20.5CM BLC 11-0601 FABRI"}, {"code": "8001947", "desc": "ETIQUETA AZZ 5X9CM DENIM"}, {"code": "8001664", "desc": "ETIQUETA AZZ UNIFICADA"}, {"code": "8001400", "desc": "ETIQUETA INDIGO AZZORTI"}, {"code": "8001687", "desc": "ETIQUETA LIVV UNIFICADA"}, {"code": "8001964", "desc": "ETIQUETA TISS 5.3X11CM BLC CON SELLO"}, {"code": "6001751", "desc": "FLECO ALMIRANTE 2 2CM ROJO 53"}, {"code": "6000734", "desc": "FLECO CHANTILLY L10 NEGRO 10CM"}, {"code": "6002955", "desc": "FLECO MOSQUITO 2CM NEGRO"}, {"code": "6002919", "desc": "FLECO POMPON 2CM NEGRO"}, {"code": "6002451", "desc": "GAFETEA 2X2X25 32 BLANCO"}, {"code": "GALES", "desc": "GALES"}, {"code": "GALES BEIGE", "desc": "GALES"}, {"code": "GALES BLA", "desc": "GALES"}, {"code": "GALES PFD", "desc": "GALES"}, {"code": "GAVIOTA", "desc": "GAVIOTA"}, {"code": "GAZA", "desc": "GAZA"}, {"code": "GAZA PFD", "desc": "GAZA"}, {"code": "7500526", "desc": "GAZA HILO AZUL OSC 19-4028"}, {"code": "7500692", "desc": "GAZA HILO INCA P-A AMARILLA 14-0756"}, {"code": "7501001", "desc": "GAZA HILO INCA P-A AMARILLO 11-0615"}, {"code": "7500958", "desc": "GAZA HILO INCA P-A AZ MED 17-4021"}, {"code": "7500693", "desc": "GAZA HILO INCA P-A AZUL 15-4312"}, {"code": "7500676", "desc": "GAZA HILO INCA P-A AZUL 17-4023"}, {"code": "7500437", "desc": "GAZA HILO INCA P-A AZUL 17-4033"}, {"code": "7500668", "desc": "GAZA HILO INCA P-A AZUL 17-4432"}, {"code": "7500783", "desc": "GAZA HILO INCA P-A AZUL 19-4028"}, {"code": "7500700", "desc": "GAZA HILO INCA P-A AZUL 19-4241"}, {"code": "7500438", "desc": "GAZA HILO INCA P-A AZUL CIE 15-4105"}, {"code": "7501002", "desc": "GAZA HILO INCA P-A AZUL CLARO 13-4401"}, {"code": "7500439", "desc": "GAZA HILO INCA P-A AZUL OSC 19-4024"}, {"code": "7501004", "desc": "GAZA HILO INCA P-A AZUL PET 19-4340"}, {"code": "7501045", "desc": "GAZA HILO INCA P-A AZUL ROYAL 18-4051"}, {"code": "7500797", "desc": "GAZA HILO INCA P-A AZUL ROYAL 19-4052"}, {"code": "7500527", "desc": "GAZA HILO INCA P-A BEIGE 11-0104"}, {"code": "7501087", "desc": "GAZA HILO INCA P-A BLANCO 11-0601"}, {"code": "7500784", "desc": "GAZA HILO INCA P-A CAFE 19-1430"}, {"code": "7500440", "desc": "GAZA HILO INCA P-A CAMEL 17-1134"}, {"code": "7500540", "desc": "GAZA HILO INCA P-A CAMEL 18-1250"}, {"code": "7500798", "desc": "GAZA HILO INCA P-A CAQUI 16-1412"}, {"code": "7500536", "desc": "GAZA HILO INCA P-A CORAL 18-1640"}, {"code": "7500743", "desc": "GAZA HILO INCA P-A FUCSIA 17-2624"}, {"code": "7500442", "desc": "GAZA HILO INCA P-A GRIS 14-5002"}, {"code": "7500746", "desc": "GAZA HILO INCA P-A GRIS 17-1502"}, {"code": "7500785", "desc": "GAZA HILO INCA P-A GRIS 18-0403"}, {"code": "7501030", "desc": "GAZA HILO INCA P-A GRIS 18-4017"}, {"code": "7500552", "desc": "GAZA HILO INCA P-A GRIS JASPE"}, {"code": "7501066", "desc": "GAZA HILO INCA P-A HABANO 16-1334"}, {"code": "7501046", "desc": "GAZA HILO INCA P-A LILA 15-3507"}, {"code": "7500678", "desc": "GAZA HILO INCA P-A LILA 15-3817"}, {"code": "7500721", "desc": "GAZA HILO INCA P-A LILA AZUL 19-4234"}, {"code": "7500744", "desc": "GAZA HILO INCA P-A MANDARINA 16-1459"}, {"code": "7501005", "desc": "GAZA HILO INCA P-A MOSTAZA 14-0951"}, {"code": "7500669", "desc": "GAZA HILO INCA P-A MOSTAZA 15-0955"}, {"code": "7500959", "desc": "GAZA HILO INCA P-A MOSTAZA 17-1048"}, {"code": "7500799", "desc": "GAZA HILO INCA P-A NEGRO 19-4005"}, {"code": "7500584", "desc": "GAZA HILO INCA P-A NUDE 14-1209"}, {"code": "7500443", "desc": "GAZA HILO INCA P-A PETROLEO 18-4026"}, {"code": "7501067", "desc": "GAZA HILO INCA P-A PFD 11-0103"}, {"code": "7501068", "desc": "GAZA HILO INCA P-A ROJO 18-1660"}, {"code": "7500787", "desc": "GAZA HILO INCA P-A ROJO 19-1761"}, {"code": "7500786", "desc": "GAZA HILO INCA P-A ROSA 16-1516"}, {"code": "7500679", "desc": "GAZA HILO INCA P-A ROSADO 14-1911"}, {"code": "7501006", "desc": "GAZA HILO INCA P-A ROSADO CLARO 13-2802"}, {"code": "7501047", "desc": "GAZA HILO INCA P-A SALMON 15-1626"}, {"code": "7500952", "desc": "GAZA HILO INCA P-A SANDIA 18-1665"}, {"code": "7501007", "desc": "GAZA HILO INCA P-A SANGRIA 19-2047"}, {"code": "7500553", "desc": "GAZA HILO INCA P-A VERDE 16-5808"}, {"code": "7500444", "desc": "GAZA HILO INCA P-A VERDE 17-0210"}, {"code": "7500537", "desc": "GAZA HILO INCA P-A VERDE 17-5130"}, {"code": "7500677", "desc": "GAZA HILO INCA P-A VERDE 19-4834"}, {"code": "7500701", "desc": "GAZA HILO INCA P-A VERDE 19-4914"}, {"code": "7501008", "desc": "GAZA HILO INCA P-A VERDE MEDIO 15-0531"}, {"code": "7500680", "desc": "GAZA HILO INCA P-A VERDE MENTA 15-5416"}, {"code": "7501009", "desc": "GAZA HILO INCA P-A VERDE MIL 18-0430"}, {"code": "7500960", "desc": "GAZA HILO INCA P-A VERDE MILITAR 18-0317"}, {"code": "7500670", "desc": "GAZA HILO INCA P-A VERDE OSCURO 19-5226"}, {"code": "7500585", "desc": "GAZA HILO INCA P-A VERDE OSCURO 19-5511"}, {"code": "7501069", "desc": "GAZA HILO INCA P-A VINO 19-1528"}, {"code": "7500671", "desc": "GAZA HILO INCA P-A VINOTINTO 19-1522"}, {"code": "7500541", "desc": "GAZA HILO INCA P-A VINOTINTO 19-1627"}, {"code": "7500528", "desc": "GAZA HILO ROJO 19-1761"}, {"code": "GENOVA", "desc": "GENOVA"}, {"code": "GENOVA BEIGE", "desc": "GENOVA"}, {"code": "GENOVA BLA", "desc": "GENOVA"}, {"code": "GENOVA PFD", "desc": "GENOVA"}, {"code": "6003056", "desc": "HEBILLA BURBUJA REF 2463210 32MM NEGRO"}, {"code": "6002278", "desc": "HEBILLA KAREY REF 456 PASO 3.7CM L9087"}, {"code": "6000753", "desc": "HEBILLA OVEROL REF 1 1.4X3.4 NIQ BRILL"}, {"code": "6000758", "desc": "HEBILLA REDONDA NIQ.BRI AGUIJON 5-1031"}, {"code": "6002369", "desc": "HILADILLO ALG REF 101 15MM CRUDO"}, {"code": "6002370", "desc": "HILADILLO ALG REF 101 25MM CRUDO"}, {"code": "6000773", "desc": "HILADILLO POL REF 103 10MM AZUL 22"}, {"code": "6000767", "desc": "HILADILLO POL REF 103 10MM BLANCO 01"}, {"code": "6000762", "desc": "HILADILLO POL REF 103 10MM GRIS CLARO 06"}, {"code": "6001990", "desc": "HILADILLO POL REF 103 10MM HUESO 46"}, {"code": "6000766", "desc": "HILADILLO POL REF 103 10MM NATURAL 32"}, {"code": "6000764", "desc": "HILADILLO POL REF 103 10MM NEGRO 02"}, {"code": "6002024", "desc": "HILADILLO POL REF 103 10MM ROJ FIESTA 75"}, {"code": "6002690", "desc": "HILADILLO POL REF 103 10MM ROSA MEDIO 10"}, {"code": "6000765", "desc": "HILADILLO POL REF 103 10MM VINOTINTO 114"}, {"code": "6000774", "desc": "HILADILLO POL REF 103 15MM NEGRO 02"}, {"code": "6000777", "desc": "HILADILLO POL REF 103 15MM ROSA 204"}, {"code": "6001961", "desc": "HILADILLO POL REF 103 20MM BLANCO 01"}, {"code": "6000781", "desc": "HILADILLO POL REF 103 20MM CASTANO OSC65"}, {"code": "6000784", "desc": "HILADILLO POL REF 103 20MM GRIS CLARO 06"}, {"code": "6000771", "desc": "HILADILLO POL REF 103 20MM NATURAL 32"}, {"code": "6000788", "desc": "HILADILLO POL REF 103 20MM NEGRO 02"}, {"code": "6002698", "desc": "HILADILLO POL REF 103 30MM NEGRO 02"}, {"code": "6001660", "desc": "HILADILLO POL REF 164 15MM VR/RJ/VR 2397"}, {"code": "6001752", "desc": "HILADILLO POL REF 926 10MM 5584"}, {"code": "6002931", "desc": "HILADILLO POL SPUM 20MM AZUL OSC 4786"}, {"code": "6003052", "desc": "HILAZA SPANDEX 70-1"}, {"code": "6000805", "desc": "HILOCAUCHO REF 4072 MULT BLANCO 11-0601"}, {"code": "6000806", "desc": "HILOCAUCHO REF 4072 MULT NEGRO 19-4005"}, {"code": "HUNGRIA PFD", "desc": "HUNGRIA"}, {"code": "IAGO", "desc": "IAGO"}, {"code": "IGOR", "desc": "IGOR"}, {"code": "xx", "desc": "IMPERIAL"}, {"code": "INCA", "desc": "INCA"}, {"code": "INCA BEIGE", "desc": "INCA"}, {"code": "INCA BLA", "desc": "INCA"}, {"code": "INCA PFD", "desc": "INCA"}, {"code": "JUANA", "desc": "JUANA"}, {"code": "JUANA BEIGE", "desc": "JUANA"}, {"code": "JUANA BLA", "desc": "JUANA"}, {"code": "JUANA PFD", "desc": "JUANA"}, {"code": "JULIANA BLA", "desc": "JULIANA"}, {"code": "JULIANA PFD", "desc": "JULIANA"}, {"code": "KATIA", "desc": "KATIA"}, {"code": "KATIA BEIGE", "desc": "KATIA"}, {"code": "KATIA BLA", "desc": "KATIA"}, {"code": "KATIA PFD", "desc": "KATIA"}, {"code": "KIOTO", "desc": "KIOTO"}, {"code": "KIOTO CLA", "desc": "KIOTO"}, {"code": "KIOTO PFD", "desc": "KIOTO"}, {"code": "LANILLA", "desc": "LANILLA"}, {"code": "LANILLA GRI", "desc": "LANILLA"}, {"code": "LANILLA UNICOLOR", "desc": "LANILLA"}, {"code": "LANILLA UNICOLOR CLA", "desc": "LANILLA"}, {"code": "6000022", "desc": "LIGUERO REF 6561201 12MM TRANSPARENTE"}, {"code": "LIRIO", "desc": "LIRIO"}, {"code": "LIRIO CLA", "desc": "LIRIO"}, {"code": "LIRIO PFD", "desc": "LIRIO"}, {"code": "LONDRES", "desc": "LONDRES"}, {"code": "LONDRES BEIGE", "desc": "LONDRES"}, {"code": "LONDRES BLA", "desc": "LONDRES"}, {"code": "LONDRES PFD", "desc": "LONDRES"}, {"code": "MARILYN", "desc": "MARILYN"}, {"code": "MARILYN BEIGE", "desc": "MARILYN"}, {"code": "MARILYN BLA", "desc": "MARILYN"}, {"code": "MARILYN PFD", "desc": "MARILYN"}, {"code": "6003045001", "desc": "MARQUILLA AZZ BOXER UNIFICADA"}, {"code": "6003237001", "desc": "MARQUILLA AZZ ROPBAND ESC BL 11-0601"}, {"code": "6003238001", "desc": "MARQUILLA AZZ ROPBAND ESC NG 19-4005"}, {"code": "6003047001", "desc": "MARQUILLA AZZ SATIN UNIFICADA"}, {"code": "6003042001", "desc": "MARQUILLA AZZ TEJ UNIFICADA DENIM"}, {"code": "6001001", "desc": "MARQUILLA CONSOLI PAISES NO PLA"}, {"code": "6001001001", "desc": "MARQUILLA CONSOLI PAISES NO PLA"}, {"code": "6001002", "desc": "MARQUILLA CONSOLI PAISES PLANCH"}, {"code": "6001002001", "desc": "MARQUILLA CONSOLI PAISES PLANCH,T-U"}, {"code": "6003046001", "desc": "MARQUILLA LIVV BOXER UNIFICADA"}, {"code": "6002590001", "desc": "MARQUILLA LIVV ROPBAND"}, {"code": "6003289001", "desc": "MARQUILLA LIVV ROPBAND INF AZUL 5431"}, {"code": "6003048001", "desc": "MARQUILLA LIVV SATIN UNIFICADA"}, {"code": "6003043001", "desc": "MARQUILLA LIVV TEJ UNIFICADA DENIM"}, {"code": "6003358007", "desc": "MARQUILLA TISS INST LAVADO 45X30MM,T-1"}, {"code": "6003358006", "desc": "MARQUILLA TISS INST LAVADO 45X30MM,T-11"}, {"code": "6003358003", "desc": "MARQUILLA TISS INST LAVADO 45X30MM,T-13"}, {"code": "6003358001", "desc": "MARQUILLA TISS INST LAVADO 45X30MM,T-15"}, {"code": "6003358004", "desc": "MARQUILLA TISS INST LAVADO 45X30MM,T-3"}, {"code": "6003358002", "desc": "MARQUILLA TISS INST LAVADO 45X30MM,T-5"}, {"code": "6003358005", "desc": "MARQUILLA TISS INST LAVADO 45X30MM,T-7"}, {"code": "6003358008", "desc": "MARQUILLA TISS INST LAVADO 45X30MM,T-9"}, {"code": "6003359001", "desc": "MARQUILLA TISS TJ DAMASCO 7X1.5CM,T-U"}, {"code": "6002134", "desc": "MEDIA ARGOLLA PLN 0405540003 40MM LAT BR"}, {"code": "6002371", "desc": "MEDIA ARGOLLA PLN 30MM LATON PAVON"}, {"code": "MELOCOTON", "desc": "MELOCOTON"}, {"code": "MELOCOTON CLA", "desc": "MELOCOTON"}, {"code": "MILENA", "desc": "MILENA"}, {"code": "MILENA BLA", "desc": "MILENA"}, {"code": "MILENA PFD", "desc": "MILENA"}, {"code": "Active Cla", "desc": "Metodo Antiguo"}, {"code": "Active Osc", "desc": "Metodo Antiguo"}, {"code": "Ana Sport cla", "desc": "Metodo Antiguo"}, {"code": "Ana Sport osc", "desc": "Metodo Antiguo"}, {"code": "Andres", "desc": "Metodo Antiguo"}, {"code": "Azalea Cla", "desc": "Metodo Antiguo"}, {"code": "Azalea Osc", "desc": "Metodo Antiguo"}, {"code": "Berlin", "desc": "Metodo Antiguo"}, {"code": "Burda Jaspe", "desc": "Metodo Antiguo"}, {"code": "Carmesi cla", "desc": "Metodo Antiguo"}, {"code": "Carmesi osc", "desc": "Metodo Antiguo"}, {"code": "Catalina cla", "desc": "Metodo Antiguo"}, {"code": "Catalina osc", "desc": "Metodo Antiguo"}, {"code": "Chalis Hungria cla", "desc": "Metodo Antiguo"}, {"code": "Cherry", "desc": "Metodo Antiguo"}, {"code": "Colin", "desc": "Metodo Antiguo"}, {"code": "Comanecci", "desc": "Metodo Antiguo"}, {"code": "Crinkle cla", "desc": "Metodo Antiguo"}, {"code": "Crinkle osc", "desc": "Metodo Antiguo"}, {"code": "Danna Cla", "desc": "Metodo Antiguo"}, {"code": "Danna Osc", "desc": "Metodo Antiguo"}, {"code": "Gales Cla", "desc": "Metodo Antiguo"}, {"code": "Gales osc", "desc": "Metodo Antiguo"}, {"code": "Gaviota Black", "desc": "Metodo Antiguo"}, {"code": "Gaviota Blue", "desc": "Metodo Antiguo"}, {"code": "Gaza Cla", "desc": "Metodo Antiguo"}, {"code": "Gaza osc", "desc": "Metodo Antiguo"}, {"code": "Genova cla", "desc": "Metodo Antiguo"}, {"code": "Genova osc", "desc": "Metodo Antiguo"}, {"code": "Iago", "desc": "Metodo Antiguo"}, {"code": "Igor", "desc": "Metodo Antiguo"}, {"code": "Juana Cla", "desc": "Metodo Antiguo"}, {"code": "Juana Osc", "desc": "Metodo Antiguo"}, {"code": "Juliana Burda cla", "desc": "Metodo Antiguo"}, {"code": "Katia cla", "desc": "Metodo Antiguo"}, {"code": "Katia osc", "desc": "Metodo Antiguo"}, {"code": "Kioto Osc", "desc": "Metodo Antiguo"}, {"code": "Kioto cla", "desc": "Metodo Antiguo"}, {"code": "Lanilla Clara (Gris)", "desc": "Metodo Antiguo"}, {"code": "Lanilla Oscura (Gris)", "desc": "Metodo Antiguo"}, {"code": "Lanilla unicolor cla", "desc": "Metodo Antiguo"}, {"code": "Lanilla unicolor osc", "desc": "Metodo Antiguo"}, {"code": "Lirio Ojalillo Cla", "desc": "Metodo Antiguo"}, {"code": "Lirio Ojalillo Osc", "desc": "Metodo Antiguo"}, {"code": "Londres Jasp", "desc": "Metodo Antiguo"}, {"code": "Londres cla", "desc": "Metodo Antiguo"}, {"code": "Londres osc", "desc": "Metodo Antiguo"}, {"code": "Luna cla", "desc": "Metodo Antiguo"}, {"code": "Luna osc", "desc": "Metodo Antiguo"}, {"code": "Maria cla", "desc": "Metodo Antiguo"}, {"code": "Maria osc", "desc": "Metodo Antiguo"}, {"code": "Marilyn cla", "desc": "Metodo Antiguo"}, {"code": "Marilyn osc", "desc": "Metodo Antiguo"}, {"code": "Melocoton Cla", "desc": "Metodo Antiguo"}, {"code": "Melocoton osc", "desc": "Metodo Antiguo"}, {"code": "Merida", "desc": "Metodo Antiguo"}, {"code": "Milano Osc", "desc": "Metodo Antiguo"}, {"code": "Milano cla", "desc": "Metodo Antiguo"}, {"code": "Napoles cla", "desc": "Metodo Antiguo"}, {"code": "Napolitana cla", "desc": "Metodo Antiguo"}, {"code": "Napolitana osc", "desc": "Metodo Antiguo"}, {"code": "Neptuno cla", "desc": "Metodo Antiguo"}, {"code": "Neptuno osc", "desc": "Metodo Antiguo"}, {"code": "Oporto Cla", "desc": "Metodo Antiguo"}, {"code": "Osaka Cla", "desc": "Metodo Antiguo"}, {"code": "Osaka osc", "desc": "Metodo Antiguo"}, {"code": "Pacificplus cla", "desc": "Metodo Antiguo"}, {"code": "Pacificplus osc", "desc": "Metodo Antiguo"}, {"code": "Pique Tomas Cla", "desc": "Metodo Antiguo"}, {"code": "Pique Tomas osc", "desc": "Metodo Antiguo"}, {"code": "Piña Cla", "desc": "Metodo Antiguo"}, {"code": "Piña Osc", "desc": "Metodo Antiguo"}, {"code": "Popelina cla", "desc": "Metodo Antiguo"}, {"code": "Popelina osc", "desc": "Metodo Antiguo"}, {"code": "Spining cla", "desc": "Metodo Antiguo"}, {"code": "Spining osc", "desc": "Metodo Antiguo"}, {"code": "Suede", "desc": "Metodo Antiguo"}, {"code": "Tipo cuero", "desc": "Metodo Antiguo"}, {"code": "Toronja Jasp", "desc": "Metodo Antiguo"}, {"code": "Toronja cla", "desc": "Metodo Antiguo"}, {"code": "Toronja osc", "desc": "Metodo Antiguo"}, {"code": "Tull Milena cla", "desc": "Metodo Antiguo"}, {"code": "Tull Milena osc", "desc": "Metodo Antiguo"}, {"code": "Twill Cla", "desc": "Metodo Antiguo"}, {"code": "Twill osc", "desc": "Metodo Antiguo"}, {"code": "Verona Cla", "desc": "Metodo Antiguo"}, {"code": "Verona Jaspe", "desc": "Metodo Antiguo"}, {"code": "Verona Osc", "desc": "Metodo Antiguo"}, {"code": "NAPOLES PFD", "desc": "NAPOLES"}, {"code": "NAPOLITANA", "desc": "NAPOLITANA"}, {"code": "NAPOLITANA BEIGE", "desc": "NAPOLITANA"}, {"code": "NAPOLITANA BLA", "desc": "NAPOLITANA"}, {"code": "NAPOLITANA PFD", "desc": "NAPOLITANA"}, {"code": "NEPTUNO", "desc": "NEPTUNO"}, {"code": "NEPTUNO BEIGE", "desc": "NEPTUNO"}, {"code": "NEPTUNO BLA", "desc": "NEPTUNO"}, {"code": "NEPTUNO PFD", "desc": "NEPTUNO"}, {"code": "6001663", "desc": "OJALETE 1/2 COBRE PAVON X 2P"}, {"code": "6001019", "desc": "OJALETE 1/2 NIQUEL X 3P ARANDELA PLAST"}, {"code": "6002611", "desc": "OJALETE 1/4 NIQ NEG X 3P ARAN PLAST LIV"}, {"code": "6002646", "desc": "OJALETE 3/16 REF 2080500 PLASTICO ROJO"}, {"code": "6001778", "desc": "OJALETE 3/4 PAV-NG-NQ X 3P ARANDELA PLAS"}, {"code": "6002031", "desc": "OJALETE 3/8 COBRE PAV X 3P ARANDELA PLAS"}, {"code": "6002081", "desc": "OJALETE 5/32 NIQ BRI X 2P"}, {"code": "OSAKA", "desc": "OSAKA"}, {"code": "OSAKA BEIGE", "desc": "OSAKA"}, {"code": "OSAKA BLA", "desc": "OSAKA"}, {"code": "OSAKA PFD", "desc": "OSAKA"}, {"code": "PACIFIC PLUS BLAN", "desc": "PACIFIC"}, {"code": "6001036", "desc": "PAPEL FOIL DORADO"}, {"code": "6001037", "desc": "PAPEL FOIL PLATA"}, {"code": "6001038", "desc": "PAPEL FOIL ROJO"}, {"code": "6002970", "desc": "PAPEL FOIL TORNASOL"}, {"code": "PINA", "desc": "PINA"}, {"code": "PINA BEIGE", "desc": "PINA"}, {"code": "PINA BLA", "desc": "PINA"}, {"code": "PINA PFD", "desc": "PINA"}, {"code": "6003088", "desc": "PUNTERA METALICA 4.2X19MM NEGRO"}, {"code": "6003308", "desc": "REMACHE 7.6MM COBRE PAVON DENIM"}, {"code": "6003309", "desc": "REMACHE 7.6MM PAVON NEGRO NIQUEL DENIM"}, {"code": "6002476", "desc": "SESGO ELAS REF405 15MM MARF 8267 11-0108"}, {"code": "6002294", "desc": "SESGO ELAST R405 15MM COCOA 8161 16-1412"}, {"code": "6001577", "desc": "SESGO ELAST REF37515 AZUL REY 08-0096"}, {"code": "6002972", "desc": "SESGO ELAST REF37515 CORAL 05-0202"}, {"code": "6001587", "desc": "SESGO ELAST REF37515 MORADO 15-0106"}, {"code": "6002420", "desc": "SESGO ELAST REF37515 MOSTAZA 03-0054"}, {"code": "6002157", "desc": "SESGO ELAST REF37515 ROS 05-0131 14-1909"}, {"code": "6002190", "desc": "SESGO ELAST REF37515 TERRACOTA 13-0140"}, {"code": "6002151", "desc": "SESGO ELAST REF37515 VERDE BOTEL 11-0073"}, {"code": "6002152", "desc": "SESGO ELAST REF37515 VERDE MENTA 11-0066"}, {"code": "6001593", "desc": "SESGO ELAST REF37515 VINO 09-0064"}, {"code": "6002523", "desc": "SESGO ELAST REF405 15MM AGUA 580"}, {"code": "6003096", "desc": "SESGO ELAST REF405 15MM AMARILLO 1176"}, {"code": "6002481", "desc": "SESGO ELAST REF405 15MM AZO 5474 19-4024"}, {"code": "6003324", "desc": "SESGO ELAST REF405 15MM AZU 5718 19-4340"}, {"code": "6003327", "desc": "SESGO ELAST REF405 15MM AZU 5719 13-4401"}, {"code": "6003262", "desc": "SESGO ELAST REF405 15MM AZU 5906 17-4021"}, {"code": "6003310", "desc": "SESGO ELAST REF405 15MM BEI 8572 16-1334"}, {"code": "6002475", "desc": "SESGO ELAST REF405 15MM BLC 000 11-0601"}, {"code": "6003523", "desc": "SESGO ELAST REF405 15MM CAF 8372 19-1430"}, {"code": "6003524", "desc": "SESGO ELAST REF405 15MM COR 2609 16-1620"}, {"code": "6003331", "desc": "SESGO ELAST REF405 15MM FSC 2170 17-2235"}, {"code": "6003525", "desc": "SESGO ELAST REF405 15MM GRI 7434 14-4203"}, {"code": "6003332", "desc": "SESGO ELAST REF405 15MM GRI 7791 18-4017"}, {"code": "6002835", "desc": "SESGO ELAST REF405 15MM GRIS 7790"}, {"code": "6003311", "desc": "SESGO ELAST REF405 15MM LIL 4801 13-3820"}, {"code": "6002588", "desc": "SESGO ELAST REF405 15MM MAGENTA 4106"}, {"code": "6003263", "desc": "SESGO ELAST REF405 15MM MOR 4905 18-1710"}, {"code": "6002477", "desc": "SESGO ELAST REF405 15MM NEG 701 19-4005"}, {"code": "7501190", "desc": "SESGO ELAST REF405 15MM NG 19-4005 FABRI"}, {"code": "6003148", "desc": "SESGO ELAST REF405 15MM PFD 8177 11-0103"}, {"code": "6002482", "desc": "SESGO ELAST REF405 15MM ROJ 3198 18-1657"}, {"code": "6003325", "desc": "SESGO ELAST REF405 15MM ROJ 3877 18-1660"}, {"code": "6003526", "desc": "SESGO ELAST REF405 15MM ROS 2608 15-1611"}, {"code": "6003264", "desc": "SESGO ELAST REF405 15MM ROS 2905 19-2047"}, {"code": "6003312", "desc": "SESGO ELAST REF405 15MM ROS 2931 13-2802"}, {"code": "6002520", "desc": "SESGO ELAST REF405 15MM ROSA 238 16-1516"}, {"code": "6002478", "desc": "SESGO ELAST REF405 15MM ROSADO 2504"}, {"code": "6003087", "desc": "SESGO ELAST REF405 15MM TAU 8992 14-1209"}, {"code": "6003527", "desc": "SESGO ELAST REF405 15MM VER 6306 15-0318"}, {"code": "6002491", "desc": "SESGO ELAST REF405 15MM VIN 3226 19-1528"}, {"code": "6003313", "desc": "SESGO ELAST REF405 15MM VML 6796 18-0430"}, {"code": "6002508", "desc": "SESGO ELAST REF405 15MMAZPET5447 18-4522"}, {"code": "6002600", "desc": "SESGO ELAST REF405 20MM AZO 5474 19-4024"}, {"code": "6002584", "desc": "SESGO ELAST REF405 20MM NEGR 701 19-4005"}, {"code": "6002140", "desc": "SESGO EMPITADO 10MM AZU OSC 5040 19-3815"}, {"code": "6002634", "desc": "SESGO EMPITADO 10MM BLANCO 11-0601"}, {"code": "6002354", "desc": "SESGO EMPITADO 10MM NEGRO 19-4005"}, {"code": "6002295", "desc": "SESGO EMPITADO 10MM VERDE MILITAR 6009"}, {"code": "6002699", "desc": "SESGO EMPITADO 10MM VINO 1901 19-1528"}, {"code": "8002099", "desc": "STICKER ADVERTENCIA 60X60MM DENIM"}, {"code": "8000980", "desc": "STICKER TRANSF TERMI 32X25MM ROP BLC"}, {"code": "SUEDE", "desc": "SUEDE"}, {"code": "6001599", "desc": "TAPA BROCHE DUMB 24LHEMDUAL15 NIQBRI APL"}, {"code": "6002787", "desc": "TAPA BROCHE DUMB 27L HEM DUAL 15 LAT BRI"}, {"code": "6001689", "desc": "TAPA BROCHE DUMB 27L HEM DUAL 15 NIQ PAV"}, {"code": "6001915", "desc": "TAPA BROCHE DUMB 27L HEM DUAL ROS 152216"}, {"code": "6001844", "desc": "TAPA BROCHE DUMB 27LHEMDUAL15 NIQBRI APL"}, {"code": "6507370", "desc": "TELA PLN ACAPULCO SATIN IMP PFD"}, {"code": "6504138", "desc": "TELA PLN ACTIVE SL27 PFD 11-0103"}, {"code": "6506878", "desc": "TELA PLN ANDRES CHAMBRAY SL27 IMP DENIM"}, {"code": "6510265", "desc": "TELA PLN CHERRY SL27 IMP NG 19-4005"}, {"code": "6510763", "desc": "TELA PLN CHERRY STCH SL27 IMP AZ 19-4024"}, {"code": "6510765", "desc": "TELA PLN CHERRY STCH SL27 IMP ND 14-1209"}, {"code": "6510766", "desc": "TELA PLN CHERRY STCH SL27 IMP VR 18-5913"}, {"code": "6510764", "desc": "TELA PLN CHERRY STCH SL27IMP HAB 17-1324"}, {"code": "6510767", "desc": "TELA PLN CHERRY STCH SL27IMP VIN 19-1534"}, {"code": "6500277", "desc": "TELA PLN COMANECI SL27 BPT 0W000"}, {"code": "6505911", "desc": "TELA PLN DACRON P-A PFD"}, {"code": "6500399", "desc": "TELA PLN GAVIOTA PLUS SL27 DENIM"}, {"code": "6504791", "desc": "TELA PLN GAVIOTA SL27 BLACK BW"}, {"code": "6507231", "desc": "TELA PLN HUNGRIA CHALIS L27 PFD"}, {"code": "6509171", "desc": "TELA PLN IAGO RIGIDO SL27 DENIM BLACK"}, {"code": "6508307", "desc": "TELA PLN IGOR DARK SL27 DENIM"}, {"code": "6506838", "desc": "TELA PLN INCA TWILL IM L27 AZ OS 19-4024"}, {"code": "6506841", "desc": "TELA PLN INCA TWILL IMP L27 ROJO 18-1660"}, {"code": "6510768", "desc": "TELA PLN INCA TWILL L27 AMARILLO 13-0822"}, {"code": "6509865", "desc": "TELA PLN INCA TWILL L27 AZCL 14-4215"}, {"code": "6509864", "desc": "TELA PLN INCA TWILL L27 AZUL 17-4139"}, {"code": "6510769", "desc": "TELA PLN INCA TWILL L27 AZUL 19-4534"}, {"code": "6509866", "desc": "TELA PLN INCA TWILL L27 BEIGE 11-0108"}, {"code": "6507518", "desc": "TELA PLN INCA TWILL L27 CAFE 19-1430"}, {"code": "6509867", "desc": "TELA PLN INCA TWILL L27 CORAL 16-1620"}, {"code": "6510770", "desc": "TELA PLN INCA TWILL L27 HABANO 17-1324"}, {"code": "6510771", "desc": "TELA PLN INCA TWILL L27 LILA 13-3804"}, {"code": "6504916", "desc": "TELA PLN INCA TWILL L27 NEGRO 19-4005"}, {"code": "6507527", "desc": "TELA PLN INCA TWILL L27 NUDE 14-1209"}, {"code": "6509871", "desc": "TELA PLN INCA TWILL L27 ROSADO 15-1611"}, {"code": "6510772", "desc": "TELA PLN INCA TWILL L27 ROSADO 15-2213"}, {"code": "6510773", "desc": "TELA PLN INCA TWILL L27 ROSADO 17-1718"}, {"code": "6509731", "desc": "TELA PLN INCA TWILL L27 V2 FSC 17-2235"}, {"code": "6509737", "desc": "TELA PLN INCA TWILL L27 V2 SANG 19-2047"}, {"code": "6509740", "desc": "TELA PLN INCA TWILL L27 V2 VERMI 18-0430"}, {"code": "6510774", "desc": "TELA PLN INCA TWILL L27 VERDE 17-6323"}, {"code": "6509874", "desc": "TELA PLN INCA TWILL L27 VERDE 18-5913"}, {"code": "6510775", "desc": "TELA PLN INCA TWILL L27 VINO 19-1534"}, {"code": "6505599", "desc": "TELA PLN INCA TWILL SL27 IMP BLC 11-0601"}, {"code": "6504917", "desc": "TELA PLN INCA TWILL SL27 IMP PFD 11-0103"}, {"code": "6510395", "desc": "TELA PTO ANA SPORT L27 AZ OSC 19-4024"}, {"code": "6510776", "desc": "TELA PTO ANA SPORT L27 AZ ROYAL 19-3954"}, {"code": "6510777", "desc": "TELA PTO ANA SPORT L27 AZUL 14-4215"}, {"code": "6510778", "desc": "TELA PTO ANA SPORT L27 AZUL 19-4534"}, {"code": "6510400", "desc": "TELA PTO ANA SPORT L27 CAFE 19-1430"}, {"code": "6510779", "desc": "TELA PTO ANA SPORT L27 GRIS 18-0601"}, {"code": "6510780", "desc": "TELA PTO ANA SPORT L27 MARRON 18-1250"}, {"code": "6510418", "desc": "TELA PTO ANA SPORT L27 NEGRO 19-4005"}, {"code": "6510419", "desc": "TELA PTO ANA SPORT L27 PFD 11-0103"}, {"code": "6510409", "desc": "TELA PTO ANA SPORT L27 ROJO 18-1660"}, {"code": "6510411", "desc": "TELA PTO ANA SPORT L27 SANGRIA 19-2047"}, {"code": "6510781", "desc": "TELA PTO ANA SPORT L27 VERDE 17-6323"}, {"code": "6510782", "desc": "TELA PTO ANA SPORT L27 VERDE 18-0430"}, {"code": "6510416", "desc": "TELA PTO ANA SPORT L27 VERDE 18-5913"}, {"code": "6510783", "desc": "TELA PTO ANA SPORT L27 VINO 19-1534"}, {"code": "6508923", "desc": "TELA PTO AZALEA BLONDA IMP PFD"}, {"code": "6510784", "desc": "TELA PTO AZALEA BLONDA L27 AZUL 19-4024"}, {"code": "6510785", "desc": "TELA PTO AZALEA BLONDA L27 NUDE 14-1209"}, {"code": "6510786", "desc": "TELA PTO AZALEA BLONDA L27 ROJO 19-1761"}, {"code": "6510787", "desc": "TELA PTO AZALEA BLONDA L27 VINO 19-1534"}, {"code": "6509177", "desc": "TELA PTO AZALEA BLONDA SL27 BLC 11-0601"}, {"code": "6509630", "desc": "TELA PTO AZALEA BLONDA SL27 IMP V2 PFD"}, {"code": "6509178", "desc": "TELA PTO AZALEA BLONDA SL27 NG 19-4005"}, {"code": "6511089", "desc": "TELA PTO BERLIN DBFAZ L27 PFD 11-0103"}, {"code": "6511009", "desc": "TELA PTO BERLIN DOBLEFAZ L27 CRUDO"}, {"code": "6508511", "desc": "TELA PTO DANNA RIB AZUL CROSS"}, {"code": "6509097", "desc": "TELA PTO DANNA RIB JASPE CRUDO"}, {"code": "6510799", "desc": "TELA PTO DANNA RIB L27 AMARILLO 13-0822"}, {"code": "6510800", "desc": "TELA PTO DANNA RIB L27 AZ ROYAL 19-3954"}, {"code": "6509842", "desc": "TELA PTO DANNA RIB L27 AZCL 14-4215"}, {"code": "6509841", "desc": "TELA PTO DANNA RIB L27 AZUL 17-4139"}, {"code": "6510801", "desc": "TELA PTO DANNA RIB L27 AZUL 19-4534"}, {"code": "6509843", "desc": "TELA PTO DANNA RIB L27 BEIGE 11-0108"}, {"code": "6509844", "desc": "TELA PTO DANNA RIB L27 CORAL 16-1620"}, {"code": "6510802", "desc": "TELA PTO DANNA RIB L27 DURAZNO 15-1242"}, {"code": "6510803", "desc": "TELA PTO DANNA RIB L27 GRIS 18-0601"}, {"code": "6510804", "desc": "TELA PTO DANNA RIB L27 HABANO 17-1324"}, {"code": "6510805", "desc": "TELA PTO DANNA RIB L27 LILA 13-3804"}, {"code": "6510806", "desc": "TELA PTO DANNA RIB L27 MARRON 18-1250"}, {"code": "6509848", "desc": "TELA PTO DANNA RIB L27 ROSADO 15-1611"}, {"code": "6510807", "desc": "TELA PTO DANNA RIB L27 ROSADO 15-2213"}, {"code": "6510808", "desc": "TELA PTO DANNA RIB L27 ROSADO 17-1718"}, {"code": "6509542", "desc": "TELA PTO DANNA RIB L27 V2 AZ OSC 19-4024"}, {"code": "6509668", "desc": "TELA PTO DANNA RIB L27 V2 AZUL CROSS"}, {"code": "6509500", "desc": "TELA PTO DANNA RIB L27 V2 BLC 11-0601"}, {"code": "6509758", "desc": "TELA PTO DANNA RIB L27 V2 CAFE 19-1430"}, {"code": "6509759", "desc": "TELA PTO DANNA RIB L27 V2 FUCSIA 17-2235"}, {"code": "6509545", "desc": "TELA PTO DANNA RIB L27 V2 GRIS JASPE"}, {"code": "6509762", "desc": "TELA PTO DANNA RIB L27 V2 NEG CROSS"}, {"code": "6509556", "desc": "TELA PTO DANNA RIB L27 V2 NEGRO 19-4005"}, {"code": "6509549", "desc": "TELA PTO DANNA RIB L27 V2 NUDE 14-1209"}, {"code": "6509550", "desc": "TELA PTO DANNA RIB L27 V2 ROJO 18-1660"}, {"code": "6509551", "desc": "TELA PTO DANNA RIB L27 V2 SANGR 19-2047"}, {"code": "6509669", "desc": "TELA PTO DANNA RIB L27 V2 VERDE CROSS"}, {"code": "6509555", "desc": "TELA PTO DANNA RIB L27 V2 VERMI 18-0430"}, {"code": "6509764", "desc": "TELA PTO DANNA RIB L27 V2 VINO CROSS"}, {"code": "6510809", "desc": "TELA PTO DANNA RIB L27 VERDE 13-6107"}, {"code": "6510810", "desc": "TELA PTO DANNA RIB L27 VERDE 17-6323"}, {"code": "6509851", "desc": "TELA PTO DANNA RIB L27 VERDE 18-5913"}, {"code": "6510811", "desc": "TELA PTO DANNA RIB L27 VINO 19-1534"}, {"code": "6508533", "desc": "TELA PTO DANNA RIB VERDE CROSS"}, {"code": "6000709", "desc": "TELA PTO ENTRETELA SL26 BLC REF PD-8645"}, {"code": "6000711", "desc": "TELA PTO ENTRETELA SL26 NEG REF PD-8645"}, {"code": "6511091", "desc": "TELA PTO GALES RIB L27 AZUL 14-4215"}, {"code": "6511092", "desc": "TELA PTO GALES RIB L27 AZUL 17-4139"}, {"code": "6511093", "desc": "TELA PTO GALES RIB L27 AZUL 19-4534"}, {"code": "6511094", "desc": "TELA PTO GALES RIB L27 AZUL OS 19-4024"}, {"code": "6511095", "desc": "TELA PTO GALES RIB L27 BEIGE 11-0108"}, {"code": "6511090", "desc": "TELA PTO GALES RIB L27 BLANCO 11-0601"}, {"code": "6511096", "desc": "TELA PTO GALES RIB L27 CAFE 19-1430"}, {"code": "6511097", "desc": "TELA PTO GALES RIB L27 CORAL 16-1620"}, {"code": "6511013", "desc": "TELA PTO GALES RIB L27 CRUDO"}, {"code": "6511098", "desc": "TELA PTO GALES RIB L27 FUCSIA 17-2235"}, {"code": "6511099", "desc": "TELA PTO GALES RIB L27 GRIS 14-4202"}, {"code": "6511100", "desc": "TELA PTO GALES RIB L27 HABANO 17-1324"}, {"code": "6511101", "desc": "TELA PTO GALES RIB L27 NEGRO 19-4005"}, {"code": "6511102", "desc": "TELA PTO GALES RIB L27 NUDE 14-1209"}, {"code": "6511103", "desc": "TELA PTO GALES RIB L27 ROJO 18-1660"}, {"code": "6511104", "desc": "TELA PTO GALES RIB L27 ROSADO 15-2213"}, {"code": "6511105", "desc": "TELA PTO GALES RIB L27 ROSADO 17-1718"}, {"code": "6511106", "desc": "TELA PTO GALES RIB L27 SANGRIA 19-2047"}, {"code": "6511107", "desc": "TELA PTO GALES RIB L27 VERDE 17-6323"}, {"code": "6511108", "desc": "TELA PTO GALES RIB L27 VERDE 18-0430"}, {"code": "6511109", "desc": "TELA PTO GALES RIB L27 VERDE 18-5913"}, {"code": "6511110", "desc": "TELA PTO GALES RIB L27 VINO 19-1534"}, {"code": "6510812", "desc": "TELA PTO GENOVA L27 AMARILLO 13-0822"}, {"code": "6510813", "desc": "TELA PTO GENOVA L27 AZ ROYAL 19-3954"}, {"code": "6510616", "desc": "TELA PTO GENOVA L27 AZUL 17-4139"}, {"code": "6510814", "desc": "TELA PTO GENOVA L27 AZUL 19-4534"}, {"code": "6510617", "desc": "TELA PTO GENOVA L27 AZUL CLARO 14-4215"}, {"code": "6510523", "desc": "TELA PTO GENOVA L27 AZUL OSC 19-4024"}, {"code": "6510524", "desc": "TELA PTO GENOVA L27 BEIGE 11-0108"}, {"code": "6510525", "desc": "TELA PTO GENOVA L27 BLC 11-0601"}, {"code": "6510815", "desc": "TELA PTO GENOVA L27 CAFE 19-1430"}, {"code": "6510619", "desc": "TELA PTO GENOVA L27 CORAL 16-1620"}, {"code": "6510816", "desc": "TELA PTO GENOVA L27 DURAZNO 15-1242"}, {"code": "6510620", "desc": "TELA PTO GENOVA L27 FUCSIA 17-2235"}, {"code": "6510817", "desc": "TELA PTO GENOVA L27 GRIS 18-0601"}, {"code": "6510818", "desc": "TELA PTO GENOVA L27 HABANO 17-1324"}, {"code": "6510819", "desc": "TELA PTO GENOVA L27 LILA 13-3804"}, {"code": "6510820", "desc": "TELA PTO GENOVA L27 MARRON 18-1250"}, {"code": "6510527", "desc": "TELA PTO GENOVA L27 NEGRO 19-4005"}, {"code": "6510626", "desc": "TELA PTO GENOVA L27 NUDE 14-1209"}, {"code": "6510627", "desc": "TELA PTO GENOVA L27 ROJO 18-1660"}, {"code": "6510821", "desc": "TELA PTO GENOVA L27 ROJO 19-1761"}, {"code": "6510528", "desc": "TELA PTO GENOVA L27 ROSA 15-1611"}, {"code": "6510822", "desc": "TELA PTO GENOVA L27 ROSADO 15-2213"}, {"code": "6510823", "desc": "TELA PTO GENOVA L27 ROSADO 17-1718"}, {"code": "6510629", "desc": "TELA PTO GENOVA L27 SANGRIA 19-2047"}, {"code": "6510824", "desc": "TELA PTO GENOVA L27 VERDE 13-6107"}, {"code": "6510825", "desc": "TELA PTO GENOVA L27 VERDE 17-6323"}, {"code": "6510632", "desc": "TELA PTO GENOVA L27 VERDE 18-5913"}, {"code": "6510634", "desc": "TELA PTO GENOVA L27 VERDE MIL 18-0430"}, {"code": "6510826", "desc": "TELA PTO GENOVA L27 VINO 19-1534"}, {"code": "6511211", "desc": "TELA PTO IMPERIAL SATSL27IMP PFD 11-0103"}, {"code": "6510827", "desc": "TELA PTO JUANA L27 AMARILLO 13-0822"}, {"code": "6510828", "desc": "TELA PTO JUANA L27 AZ ROYAL 19-3954"}, {"code": "6509877", "desc": "TELA PTO JUANA L27 AZUL 17-4139"}, {"code": "6510829", "desc": "TELA PTO JUANA L27 AZUL 19-4534"}, {"code": "6509878", "desc": "TELA PTO JUANA L27 AZUL CIELO 14-4215"}, {"code": "6504339", "desc": "TELA PTO JUANA L27 AZUL OSCURO 19-4024"}, {"code": "6509879", "desc": "TELA PTO JUANA L27 BEIGE 11-0108"}, {"code": "6505810", "desc": "TELA PTO JUANA L27 CAFE 19-1430"}, {"code": "6509880", "desc": "TELA PTO JUANA L27 CORAL 16-1620"}, {"code": "6510830", "desc": "TELA PTO JUANA L27 DURAZNO 15-1242"}, {"code": "6510831", "desc": "TELA PTO JUANA L27 GRIS 14-4202"}, {"code": "6510832", "desc": "TELA PTO JUANA L27 GRIS 18-0601"}, {"code": "6510833", "desc": "TELA PTO JUANA L27 HABANO 17-1324"}, {"code": "6510834", "desc": "TELA PTO JUANA L27 LILA 13-3804"}, {"code": "6510835", "desc": "TELA PTO JUANA L27 MARRON 18-1250"}, {"code": "6507678", "desc": "TELA PTO JUANA L27 NUDE 14-1209"}, {"code": "6506474", "desc": "TELA PTO JUANA L27 ROJO 18-1660"}, {"code": "6509884", "desc": "TELA PTO JUANA L27 ROSADO 15-1611"}, {"code": "6510836", "desc": "TELA PTO JUANA L27 ROSADO 15-2213"}, {"code": "6510837", "desc": "TELA PTO JUANA L27 ROSADO 17-1718"}, {"code": "6509561", "desc": "TELA PTO JUANA L27 V2 FUCSIA 17-2235"}, {"code": "6509570", "desc": "TELA PTO JUANA L27 V2 SANGRIA 19-2047"}, {"code": "6509572", "desc": "TELA PTO JUANA L27 V2 VER MIL 18-0430"}, {"code": "6510838", "desc": "TELA PTO JUANA L27 VERDE 13-6107"}, {"code": "6510839", "desc": "TELA PTO JUANA L27 VERDE 17-6323"}, {"code": "6509887", "desc": "TELA PTO JUANA L27 VERDE 18-5913"}, {"code": "6510840", "desc": "TELA PTO JUANA L27 VINO 19-1534"}, {"code": "6504005", "desc": "TELA PTO JUANA SL27 BLANCO 11-0601"}, {"code": "6504007", "desc": "TELA PTO JUANA SL27 PFD 11-0103"}, {"code": "6506387", "desc": "TELA PTO JULIANA BURDA L27 IMP PFD"}, {"code": "6510444", "desc": "TELA PTO KATIA RAYA L26 BLC AZU 19-4024"}, {"code": "6510445", "desc": "TELA PTO KATIA RAYA L26 BLC PET 19-4340"}, {"code": "6510446", "desc": "TELA PTO KATIA RAYA L26 BLC ROS 15-1611"}, {"code": "6510841", "desc": "TELA PTO KIOTO L27 AMARILLO 13-0822"}, {"code": "6510842", "desc": "TELA PTO KIOTO L27 AZ ROYAL 19-3954"}, {"code": "6509890", "desc": "TELA PTO KIOTO L27 AZUL 17-4139"}, {"code": "6510843", "desc": "TELA PTO KIOTO L27 AZUL 19-4534"}, {"code": "6509891", "desc": "TELA PTO KIOTO L27 AZUL CLARO 14-4215"}, {"code": "6509067", "desc": "TELA PTO KIOTO L27 AZUL OSC 19-4024"}, {"code": "6509892", "desc": "TELA PTO KIOTO L27 BEIGE 11-0108"}, {"code": "6508984", "desc": "TELA PTO KIOTO L27 BLANCO 11-0601"}, {"code": "6509070", "desc": "TELA PTO KIOTO L27 CAFE 19-1430"}, {"code": "6509893", "desc": "TELA PTO KIOTO L27 CORAL 16-1620"}, {"code": "6510844", "desc": "TELA PTO KIOTO L27 DURAZNO 15-1242"}, {"code": "6509071", "desc": "TELA PTO KIOTO L27 FUCSIA 17-2235"}, {"code": "6510845", "desc": "TELA PTO KIOTO L27 GRIS 18-0601"}, {"code": "6510846", "desc": "TELA PTO KIOTO L27 HABANO 17-1324"}, {"code": "6510847", "desc": "TELA PTO KIOTO L27 LILA 13-3804"}, {"code": "6510848", "desc": "TELA PTO KIOTO L27 MARRON 18-1250"}, {"code": "6508985", "desc": "TELA PTO KIOTO L27 NEGRO 19-4005"}, {"code": "6509079", "desc": "TELA PTO KIOTO L27 NUDE 14-1209"}, {"code": "6509081", "desc": "TELA PTO KIOTO L27 ROJO 18-1660"}, {"code": "6510849", "desc": "TELA PTO KIOTO L27 ROJO 19-1761"}, {"code": "6509897", "desc": "TELA PTO KIOTO L27 ROSADO 15-1611"}, {"code": "6510850", "desc": "TELA PTO KIOTO L27 ROSADO 15-2213"}, {"code": "6510851", "desc": "TELA PTO KIOTO L27 ROSADO 17-1718"}, {"code": "6509083", "desc": "TELA PTO KIOTO L27 SANGRIA 19-2047"}, {"code": "6510852", "desc": "TELA PTO KIOTO L27 VERDE 13-6107"}, {"code": "6510853", "desc": "TELA PTO KIOTO L27 VERDE 17-6323"}, {"code": "6509900", "desc": "TELA PTO KIOTO L27 VERDE 18-5913"}, {"code": "6509086", "desc": "TELA PTO KIOTO L27 VERDE MILITAR 18-0430"}, {"code": "6510854", "desc": "TELA PTO KIOTO L27 VINO 19-1534"}, {"code": "6509179", "desc": "TELA PTO KIOTO PFD 11-0103"}, {"code": "6505018", "desc": "TELA PTO LANILLA AZUL OSC 19-4025-NEGRO"}, {"code": "6504117", "desc": "TELA PTO LANILLA HABANO-NEGRO"}, {"code": "6510855", "desc": "TELA PTO LANILLA L27 AZUL JASPE 17-4139"}, {"code": "6510856", "desc": "TELA PTO LANILLA L27 GRIS 14-4202"}, {"code": "6509905", "desc": "TELA PTO LANILLA L27 NUDE JASPE 14-1209"}, {"code": "6509906", "desc": "TELA PTO LANILLA L27 ROSA JASPE 15-1611"}, {"code": "6509907", "desc": "TELA PTO LANILLA L27 VERDE JASPE 18-5913"}, {"code": "6505019", "desc": "TELA PTO LANILLA NEGRO CROSS"}, {"code": "6503302", "desc": "TELA PTO LANILLA SL27 GRIS"}, {"code": "6509908", "desc": "TELA PTO LANILLA UNICO L27 AZOSC 19-4024"}, {"code": "6509909", "desc": "TELA PTO LANILLA UNICO L27 BEIGE 11-0108"}, {"code": "6510858", "desc": "TELA PTO LANILLA UNICO L27 BLC 11-0601"}, {"code": "6509910", "desc": "TELA PTO LANILLA UNICO L27 CAFE 19-1430"}, {"code": "6509913", "desc": "TELA PTO LANILLA UNICO L27 NEG 19-4005"}, {"code": "6509911", "desc": "TELA PTO LANILLA UNICO L27 VERDE 18-5913"}, {"code": "6510857", "desc": "TELA PTO LANILLA UNICO L27 VINO 19-1534"}, {"code": "6509914", "desc": "TELA PTO LANILLA UNICO SL27 PFD 11-0103"}, {"code": "6505020", "desc": "TELA PTO LANILLA VERDE CEDRO-NEGRO"}, {"code": "6510859", "desc": "TELA PTO LIRIO OJALILLO L27 AMA 13-0822"}, {"code": "6510860", "desc": "TELA PTO LIRIO OJALILLO L27 AZUL 14-4215"}, {"code": "6510861", "desc": "TELA PTO LIRIO OJALILLO L27 BEI 11-0108"}, {"code": "6510862", "desc": "TELA PTO LIRIO OJALILLO L27 ROJO 19-1761"}, {"code": "6510863", "desc": "TELA PTO LIRIO OJALILLO L27 ROSA 15-2213"}, {"code": "6510864", "desc": "TELA PTO LIRIO OJALILLO L27 VINO 19-1534"}, {"code": "6509180", "desc": "TELA PTO LIRIO OJALILLO SL27 NG 19-4005"}, {"code": "6509182", "desc": "TELA PTO LIRIO OJALILLO SL27 NUD 14-1209"}, {"code": "6510006", "desc": "TELA PTO LIRIO OJALILLO SL27 ROS 15-1611"}, {"code": "6511111", "desc": "TELA PTO LONDRES L27 AMARILLO 13-0822"}, {"code": "6511112", "desc": "TELA PTO LONDRES L27 AZ ROYAL 19-3954"}, {"code": "6511193", "desc": "TELA PTO LONDRES L27 AZUL 17-4139"}, {"code": "6511113", "desc": "TELA PTO LONDRES L27 AZUL 19-4534"}, {"code": "6511114", "desc": "TELA PTO LONDRES L27 AZUL CLARO 14-4215"}, {"code": "6511115", "desc": "TELA PTO LONDRES L27 AZUL JASPE"}, {"code": "6511116", "desc": "TELA PTO LONDRES L27 AZUL OSC 19-4024"}, {"code": "6511119", "desc": "TELA PTO LONDRES L27 BEIGE 11-0108"}, {"code": "6510755", "desc": "TELA PTO LONDRES L27 BLANCO 11-0601"}, {"code": "6511194", "desc": "TELA PTO LONDRES L27 CAFE 19-1430"}, {"code": "6511195", "desc": "TELA PTO LONDRES L27 CORAL 16-1620"}, {"code": "6510721", "desc": "TELA PTO LONDRES L27 CRUDO"}, {"code": "6511120", "desc": "TELA PTO LONDRES L27 DURAZNO 15-1242"}, {"code": "6511121", "desc": "TELA PTO LONDRES L27 FUCSIA 17-2235"}, {"code": "6511122", "desc": "TELA PTO LONDRES L27 GRIS 14-4203"}, {"code": "6511123", "desc": "TELA PTO LONDRES L27 GRIS 18-0601"}, {"code": "6511124", "desc": "TELA PTO LONDRES L27 GRIS JASPE"}, {"code": "6511126", "desc": "TELA PTO LONDRES L27 HABANO 17-1324"}, {"code": "6511127", "desc": "TELA PTO LONDRES L27 LILA 13-3804"}, {"code": "6511128", "desc": "TELA PTO LONDRES L27 LILA 13-3820"}, {"code": "6511129", "desc": "TELA PTO LONDRES L27 MARRON 18-1250"}, {"code": "6511019", "desc": "TELA PTO LONDRES L27 NEGRO 19-4005"}, {"code": "6511132", "desc": "TELA PTO LONDRES L27 NEGRO CROSS"}, {"code": "6511133", "desc": "TELA PTO LONDRES L27 NUDE 14-1209"}, {"code": "6511134", "desc": "TELA PTO LONDRES L27 ROJO 18-1660"}, {"code": "6511136", "desc": "TELA PTO LONDRES L27 ROSADO 15-1611"}, {"code": "6511137", "desc": "TELA PTO LONDRES L27 ROSADO 15-2213"}, {"code": "6511138", "desc": "TELA PTO LONDRES L27 ROSADO 17-1718"}, {"code": "6511139", "desc": "TELA PTO LONDRES L27 SANGRIA 19-2047"}, {"code": "6511141", "desc": "TELA PTO LONDRES L27 VERDE 13-6107"}, {"code": "6511142", "desc": "TELA PTO LONDRES L27 VERDE 15-0318"}, {"code": "6511143", "desc": "TELA PTO LONDRES L27 VERDE 17-6323"}, {"code": "6511144", "desc": "TELA PTO LONDRES L27 VERDE 18-5913"}, {"code": "6511020", "desc": "TELA PTO LONDRES L27 VERDE CROSS"}, {"code": "6511146", "desc": "TELA PTO LONDRES L27 VERDE MIL 18-0430"}, {"code": "6511147", "desc": "TELA PTO LONDRES L27 VINO 19-1534"}, {"code": "6511148", "desc": "TELA PTO LONDRES L27 VINO 19-2410"}, {"code": "6511149", "desc": "TELA PTO LONDRES L27 VINO CROSS"}, {"code": "6501927", "desc": "TELA PTO MARIA L26 BLANCO 11-0601"}, {"code": "6501968", "desc": "TELA PTO MARIA L26 NEGRO 19-4005"}, {"code": "6510878", "desc": "TELA PTO MARILYN L27 AMARILLO 13-0822"}, {"code": "6510879", "desc": "TELA PTO MARILYN L27 AZ ROYAL 19-3954"}, {"code": "6510463", "desc": "TELA PTO MARILYN L27 AZUL 17-4139"}, {"code": "6510880", "desc": "TELA PTO MARILYN L27 AZUL 19-4534"}, {"code": "6510464", "desc": "TELA PTO MARILYN L27 AZUL CIELO 14-4215"}, {"code": "6506893", "desc": "TELA PTO MARILYN L27 AZUL OSC 19-4024"}, {"code": "6510881", "desc": "TELA PTO MARILYN L27 BIEGE 11-0108"}, {"code": "6502144", "desc": "TELA PTO MARILYN L27 BLANCO 11-0601"}, {"code": "6504971", "desc": "TELA PTO MARILYN L27 CAFE 19-1430"}, {"code": "6510467", "desc": "TELA PTO MARILYN L27 CORAL 16-1620"}, {"code": "6510882", "desc": "TELA PTO MARILYN L27 DURAZNO 15-1242"}, {"code": "6510468", "desc": "TELA PTO MARILYN L27 FUCSIA 17-2235"}, {"code": "6510883", "desc": "TELA PTO MARILYN L27 HABANO 17-1324"}, {"code": "6510884", "desc": "TELA PTO MARILYN L27 LILA 13-3804"}, {"code": "6510885", "desc": "TELA PTO MARILYN L27 MARRON 18-1250"}, {"code": "6502149", "desc": "TELA PTO MARILYN L27 NEGRO 19-4005"}, {"code": "6510473", "desc": "TELA PTO MARILYN L27 NUDE 14-1209"}, {"code": "6503322", "desc": "TELA PTO MARILYN L27 PFD 11-0103"}, {"code": "6510886", "desc": "TELA PTO MARILYN L27 ROJO 19-1761"}, {"code": "6510475", "desc": "TELA PTO MARILYN L27 ROSADO 15-1611"}, {"code": "6510887", "desc": "TELA PTO MARILYN L27 ROSADO 15-2213"}, {"code": "6510888", "desc": "TELA PTO MARILYN L27 ROSADO 17-1718"}, {"code": "6510476", "desc": "TELA PTO MARILYN L27 SANGRIA 19-2047"}, {"code": "6510480", "desc": "TELA PTO MARILYN L27 VER MIL 18-0430"}, {"code": "6510889", "desc": "TELA PTO MARILYN L27 VERDE 13-6107"}, {"code": "6510890", "desc": "TELA PTO MARILYN L27 VERDE 17-6323"}, {"code": "6510479", "desc": "TELA PTO MARILYN L27 VERDE 18-5913"}, {"code": "6510891", "desc": "TELA PTO MARILYN L27 VINO 19-1534"}, {"code": "6510892", "desc": "TELA PTO MELOCOTON L27 AMARILLO 13-0822"}, {"code": "6510893", "desc": "TELA PTO MELOCOTON L27 AZUL 14-4215"}, {"code": "6509915", "desc": "TELA PTO MELOCOTON L27 AZUL 17-4139"}, {"code": "6510894", "desc": "TELA PTO MELOCOTON L27 AZUL 19-4534"}, {"code": "6510367", "desc": "TELA PTO MELOCOTON L27 BEIGE 11-0108"}, {"code": "6509916", "desc": "TELA PTO MELOCOTON L27 CAFE 19-1430"}, {"code": "6509917", "desc": "TELA PTO MELOCOTON L27 CORAL 16-1620"}, {"code": "6510895", "desc": "TELA PTO MELOCOTON L27 LILA 13-3804"}, {"code": "6510896", "desc": "TELA PTO MELOCOTON L27 MARRON 18-1250"}, {"code": "6510262", "desc": "TELA PTO MELOCOTON L27 NEG 19-4006 ESP"}, {"code": "6508845", "desc": "TELA PTO MELOCOTON L27 NUDE 14-1209"}, {"code": "6510897", "desc": "TELA PTO MELOCOTON L27 ROJO 19-1761"}, {"code": "6509920", "desc": "TELA PTO MELOCOTON L27 ROSADO 15-1611"}, {"code": "6510898", "desc": "TELA PTO MELOCOTON L27 ROSADO 15-2213"}, {"code": "6510899", "desc": "TELA PTO MELOCOTON L27 ROSADO 17-1718"}, {"code": "6508847", "desc": "TELA PTO MELOCOTON L27 SANGRIA 19-2047"}, {"code": "6509681", "desc": "TELA PTO MELOCOTON L27 V2 AZUL O19-4024"}, {"code": "6509580", "desc": "TELA PTO MELOCOTON L27 V2 BLANCO 11-0601"}, {"code": "6509682", "desc": "TELA PTO MELOCOTON L27 V2 ROJO 18-1660"}, {"code": "6510900", "desc": "TELA PTO MELOCOTON L27 VERDE 17-6323"}, {"code": "6509923", "desc": "TELA PTO MELOCOTON L27 VERDE 18-5913"}, {"code": "6510901", "desc": "TELA PTO MELOCOTON L27 VINO 19-1534"}, {"code": "6506493", "desc": "TELA PTO NAPOLES L27 PFD 11-0103"}, {"code": "6510907", "desc": "TELA PTO NAPOLITANA L27 AZ ROYAL 19-3954"}, {"code": "6510908", "desc": "TELA PTO NAPOLITANA L27 AZUL 14-4215"}, {"code": "6510909", "desc": "TELA PTO NAPOLITANA L27 AZUL 19-4534"}, {"code": "6507468", "desc": "TELA PTO NAPOLITANA L27 AZUL OSC 19-4024"}, {"code": "6510379", "desc": "TELA PTO NAPOLITANA L27 BEIGE 11-0108"}, {"code": "6507892", "desc": "TELA PTO NAPOLITANA L27 BLANCO 11-0601"}, {"code": "6509925", "desc": "TELA PTO NAPOLITANA L27 CAFE 19-1430"}, {"code": "6510910", "desc": "TELA PTO NAPOLITANA L27 GRIS 18-0601"}, {"code": "6510911", "desc": "TELA PTO NAPOLITANA L27 HABANO 17-1324"}, {"code": "6510912", "desc": "TELA PTO NAPOLITANA L27 MARRON 18-1250"}, {"code": "6507470", "desc": "TELA PTO NAPOLITANA L27 NEGRO 19-4005"}, {"code": "6507957", "desc": "TELA PTO NAPOLITANA L27 ROJO 18-1660"}, {"code": "6509929", "desc": "TELA PTO NAPOLITANA L27 ROSADO 15-1611"}, {"code": "6508855", "desc": "TELA PTO NAPOLITANA L27 SANGRIA 19-2047"}, {"code": "6509581", "desc": "TELA PTO NAPOLITANA L27 V2 NUDE 14-1209"}, {"code": "6510913", "desc": "TELA PTO NAPOLITANA L27 VERDE 18-0430"}, {"code": "6509932", "desc": "TELA PTO NAPOLITANA L27 VERDE 18-5913"}, {"code": "6510914", "desc": "TELA PTO NAPOLITANA L27 VINO 19-1534"}, {"code": "6504748", "desc": "TELA PTO NEOPRENO SL26ES0321 AMNG19-4005"}, {"code": "6511215", "desc": "TELA PTO NEPTUNO SL27 AZUL 14-4215"}, {"code": "6511216", "desc": "TELA PTO NEPTUNO SL27 BLANCO 11-0601"}, {"code": "6511217", "desc": "TELA PTO NEPTUNO SL27 CORAL 16-1620"}, {"code": "6511218", "desc": "TELA PTO NEPTUNO SL27 CRUDO"}, {"code": "6511219", "desc": "TELA PTO NEPTUNO SL27 GRIS 18-0601"}, {"code": "6511220", "desc": "TELA PTO NEPTUNO SL27 LILA 13-3804"}, {"code": "6511221", "desc": "TELA PTO NEPTUNO SL27 NEGRO 19-4005"}, {"code": "6511222", "desc": "TELA PTO NEPTUNO SL27 NUDE 14-1209"}, {"code": "6511229", "desc": "TELA PTO NEPTUNO SL27 ROJO 18-1660"}, {"code": "6511223", "desc": "TELA PTO NEPTUNO SL27 ROSADO 15-1611"}, {"code": "6511224", "desc": "TELA PTO NEPTUNO SL27 ROSADO 15-2213"}, {"code": "6511225", "desc": "TELA PTO NEPTUNO SL27 ROSADO 17-1718"}, {"code": "6511226", "desc": "TELA PTO NEPTUNO SL27 SANGRIA 19-2047"}, {"code": "6511227", "desc": "TELA PTO NEPTUNO SL27 VERDE 17-6323"}, {"code": "6511228", "desc": "TELA PTO NEPTUNO SL27 VINO 19-1534"}, {"code": "6510915", "desc": "TELA PTO OSAKA L27 AMARILLO 13-0822"}, {"code": "6510916", "desc": "TELA PTO OSAKA L27 AZ ROYAL 19-3954"}, {"code": "6509933", "desc": "TELA PTO OSAKA L27 AZUL 17-4139"}, {"code": "6510917", "desc": "TELA PTO OSAKA L27 AZUL 19-4534"}, {"code": "6509934", "desc": "TELA PTO OSAKA L27 AZUL CLARO 14-4215"}, {"code": "6505432", "desc": "TELA PTO OSAKA L27 AZUL OSCURO 19-4024"}, {"code": "6509935", "desc": "TELA PTO OSAKA L27 BEIGE 11-0108"}, {"code": "6505109", "desc": "TELA PTO OSAKA L27 BLANCO 11-0601"}, {"code": "6507609", "desc": "TELA PTO OSAKA L27 CAFE 19-1430"}, {"code": "6509936", "desc": "TELA PTO OSAKA L27 CORAL 16-1620"}, {"code": "6510918", "desc": "TELA PTO OSAKA L27 DURAZNO 15-1242"}, {"code": "6510919", "desc": "TELA PTO OSAKA L27 GRIS 18-0601"}, {"code": "6508008", "desc": "TELA PTO OSAKA L27 GRIS JASPE"}, {"code": "6510920", "desc": "TELA PTO OSAKA L27 HABANO 17-1324"}, {"code": "6510921", "desc": "TELA PTO OSAKA L27 LILA 13-3804"}, {"code": "6510922", "desc": "TELA PTO OSAKA L27 MARRON 18-1250"}, {"code": "6505110", "desc": "TELA PTO OSAKA L27 NEGRO 19-4005"}, {"code": "6506867", "desc": "TELA PTO OSAKA L27 ROJO 18-1660"}, {"code": "6510923", "desc": "TELA PTO OSAKA L27 ROJO 19-1761"}, {"code": "6509940", "desc": "TELA PTO OSAKA L27 ROSADO 15-1611"}, {"code": "6510924", "desc": "TELA PTO OSAKA L27 ROSADO 15-2213"}, {"code": "6510925", "desc": "TELA PTO OSAKA L27 ROSADO 17-1718"}, {"code": "6509584", "desc": "TELA PTO OSAKA L27 V2 FUCSIA 17-2235"}, {"code": "6509587", "desc": "TELA PTO OSAKA L27 V2 NUDE 14-1209"}, {"code": "6509698", "desc": "TELA PTO OSAKA L27 V2 SANGRIA 19-2047"}, {"code": "6509699", "desc": "TELA PTO OSAKA L27 V2 VER MIL 18-0430"}, {"code": "6510926", "desc": "TELA PTO OSAKA L27 VERDE 13-6107"}, {"code": "6510927", "desc": "TELA PTO OSAKA L27 VERDE 17-6323"}, {"code": "6509943", "desc": "TELA PTO OSAKA L27 VERDE 18-5913"}, {"code": "6510928", "desc": "TELA PTO OSAKA L27 VINO 19-1534"}, {"code": "6508293", "desc": "TELA PTO PACIFICPLUS BLC SUB"}, {"code": "6508294", "desc": "TELA PTO PACIFICPLUS NEGRO 19-4005"}, {"code": "6508295", "desc": "TELA PTO PACIFICPLUS ROJO 18-1762"}, {"code": "6510929", "desc": "TELA PTO PINA L27 AZUL 14-4215"}, {"code": "6509946", "desc": "TELA PTO PINA L27 AZUL 17-4139"}, {"code": "6510930", "desc": "TELA PTO PINA L27 AZUL 19-4534"}, {"code": "6508862", "desc": "TELA PTO PINA L27 AZUL OSC 19-4024"}, {"code": "6510382", "desc": "TELA PTO PINA L27 BEIGE 11-0108"}, {"code": "6508858", "desc": "TELA PTO PINA L27 BLANCO 11-0601"}, {"code": "6509947", "desc": "TELA PTO PINA L27 CAFE 19-1430"}, {"code": "6509948", "desc": "TELA PTO PINA L27 CORAL 16-1620"}, {"code": "6510931", "desc": "TELA PTO PINA L27 GRIS 18-0601"}, {"code": "6510932", "desc": "TELA PTO PINA L27 LILA 13-3804"}, {"code": "6508875", "desc": "TELA PTO PINA L27 NEGRO 19-4005"}, {"code": "6508868", "desc": "TELA PTO PINA L27 NUDE 14-1209"}, {"code": "6508869", "desc": "TELA PTO PINA L27 ROJO 18-1660"}, {"code": "6509952", "desc": "TELA PTO PINA L27 ROSADO 15-1611"}, {"code": "6510933", "desc": "TELA PTO PINA L27 ROSADO 15-2213"}, {"code": "6510934", "desc": "TELA PTO PINA L27 ROSADO 17-1718"}, {"code": "6508871", "desc": "TELA PTO PINA L27 SANGRIA 19-2047"}, {"code": "6510935", "desc": "TELA PTO PINA L27 VERDE 17-6323"}, {"code": "6509955", "desc": "TELA PTO PINA L27 VERDE 18-5913"}, {"code": "6510936", "desc": "TELA PTO PINA L27 VINO 19-1534"}, {"code": "6503440", "desc": "TELA PTO POWERNET TERAPHY L26 BLC 10104"}, {"code": "6509617", "desc": "TELA PTO POWERNET TERAPHY L26 NG 19-4005"}, {"code": "6510964", "desc": "TELA PTO SUEDED SL27 IMP AZUL 19-4024"}, {"code": "6509806", "desc": "TELA PTO SUEDED SL27 IMP CAFE 19-1430"}, {"code": "6510965", "desc": "TELA PTO SUEDED SL27 IMP GRIS 18-0601"}, {"code": "6509049", "desc": "TELA PTO SUEDED SL27 IMP NEGRO 19-4005"}, {"code": "6509807", "desc": "TELA PTO SUEDED SL27 IMP NUDE 14-1209"}, {"code": "6509808", "desc": "TELA PTO SUEDED SL27 IMP VERDE 18-5913"}, {"code": "6510937", "desc": "TELA PTO SUEDED SL27 IMP VINO 19-1534"}, {"code": "6510938", "desc": "TELA PTO TOMAS PIQUE L27 AMARIL13-0822"}, {"code": "6505249", "desc": "TELA PTO TOMAS PIQUE L27 AZU OSC 19-4024"}, {"code": "6510939", "desc": "TELA PTO TOMAS PIQUE L27 AZUL 14-4215"}, {"code": "6509956", "desc": "TELA PTO TOMAS PIQUE L27 AZUL 17-4139"}, {"code": "6510940", "desc": "TELA PTO TOMAS PIQUE L27 AZUL 19-4534"}, {"code": "6510373", "desc": "TELA PTO TOMAS PIQUE L27 BEIGE 11-0108"}, {"code": "6505277", "desc": "TELA PTO TOMAS PIQUE L27 BLANCO 00"}, {"code": "6509957", "desc": "TELA PTO TOMAS PIQUE L27 CAFE 19-1430"}, {"code": "6510941", "desc": "TELA PTO TOMAS PIQUE L27 GRIS 18-0601"}, {"code": "6510942", "desc": "TELA PTO TOMAS PIQUE L27 LILA 13-3804"}, {"code": "6510943", "desc": "TELA PTO TOMAS PIQUE L27 MARRON 18-1250"}, {"code": "6506573", "desc": "TELA PTO TOMAS PIQUE L27 NEGRO 19-4005"}, {"code": "6506146", "desc": "TELA PTO TOMAS PIQUE L27 NUDE 14-1209"}, {"code": "6508159", "desc": "TELA PTO TOMAS PIQUE L27 ROJO 18-1660"}, {"code": "6509962", "desc": "TELA PTO TOMAS PIQUE L27 ROSADO 15-1611"}, {"code": "6510944", "desc": "TELA PTO TOMAS PIQUE L27 VERDE 13-6107"}, {"code": "6510945", "desc": "TELA PTO TOMAS PIQUE L27 VERDE 18-0430"}, {"code": "6509965", "desc": "TELA PTO TOMAS PIQUE L27 VERDE 18-5913"}, {"code": "6510946", "desc": "TELA PTO TOMAS PIQUE L27 VINO 19-1534"}, {"code": "6508915", "desc": "TELA PTO TOMAS PIQUE PFD 11-0103"}, {"code": "6511150", "desc": "TELA PTO TORONJA BURDA L27 AMA 13-0822"}, {"code": "6511151", "desc": "TELA PTO TORONJA BURDA L27 AZCLA 14-4215"}, {"code": "6511152", "desc": "TELA PTO TORONJA BURDA L27 AZOSC 19-4024"}, {"code": "6511153", "desc": "TELA PTO TORONJA BURDA L27 AZROY 19-3954"}, {"code": "6511154", "desc": "TELA PTO TORONJA BURDA L27 AZUL 17-4139"}, {"code": "6511155", "desc": "TELA PTO TORONJA BURDA L27 AZUL 19-4534"}, {"code": "6511156", "desc": "TELA PTO TORONJA BURDA L27 AZUL JASPE"}, {"code": "6511157", "desc": "TELA PTO TORONJA BURDA L27 BEIGE 11-0108"}, {"code": "6511063", "desc": "TELA PTO TORONJA BURDA L27 BLC 11-0601"}, {"code": "6511158", "desc": "TELA PTO TORONJA BURDA L27 CAFE 19-1430"}, {"code": "6511159", "desc": "TELA PTO TORONJA BURDA L27 CORAL 16-1620"}, {"code": "6510967", "desc": "TELA PTO TORONJA BURDA L27 CRUDO"}, {"code": "6511160", "desc": "TELA PTO TORONJA BURDA L27 DURAZ 15-1242"}, {"code": "6511161", "desc": "TELA PTO TORONJA BURDA L27 FSC 17-2235"}, {"code": "6511162", "desc": "TELA PTO TORONJA BURDA L27 GRIS 18-0601"}, {"code": "6511163", "desc": "TELA PTO TORONJA BURDA L27 GRIS JASPE"}, {"code": "6511164", "desc": "TELA PTO TORONJA BURDA L27 HABA 17-1324"}, {"code": "6511165", "desc": "TELA PTO TORONJA BURDA L27 LILA 13-3804"}, {"code": "6511166", "desc": "TELA PTO TORONJA BURDA L27 MARRO 18-1250"}, {"code": "6511064", "desc": "TELA PTO TORONJA BURDA L27 NEG 19-4005"}, {"code": "6511167", "desc": "TELA PTO TORONJA BURDA L27 NEGRO CROSS"}, {"code": "6511168", "desc": "TELA PTO TORONJA BURDA L27 NUDE 14-1209"}, {"code": "6511169", "desc": "TELA PTO TORONJA BURDA L27 ROJO 18-1660"}, {"code": "6511170", "desc": "TELA PTO TORONJA BURDA L27 ROS 15-1611"}, {"code": "6511171", "desc": "TELA PTO TORONJA BURDA L27 ROS 15-2213"}, {"code": "6511172", "desc": "TELA PTO TORONJA BURDA L27 ROS 17-1718"}, {"code": "6511173", "desc": "TELA PTO TORONJA BURDA L27 SANG 19-2047"}, {"code": "6511174", "desc": "TELA PTO TORONJA BURDA L27 VERDE 13-6107"}, {"code": "6511175", "desc": "TELA PTO TORONJA BURDA L27 VERDE 17-6323"}, {"code": "6511176", "desc": "TELA PTO TORONJA BURDA L27 VERDE 18-5913"}, {"code": "6511177", "desc": "TELA PTO TORONJA BURDA L27 VERDE JASPE"}, {"code": "6511178", "desc": "TELA PTO TORONJA BURDA L27 VINO 19-1534"}, {"code": "6511179", "desc": "TELA PTO TORONJA BURDA L27 VINO CROSS"}, {"code": "6511180", "desc": "TELA PTO TORONJA BURDA L27 VRMIL 18-0430"}, {"code": "6510902", "desc": "TELA PTO TULL MILENA L27 AZUL 19-4024"}, {"code": "6510903", "desc": "TELA PTO TULL MILENA L27 NUDE 14-1209"}, {"code": "6510904", "desc": "TELA PTO TULL MILENA L27 ROJO 19-1761"}, {"code": "6510905", "desc": "TELA PTO TULL MILENA L27 ROSA 15-1611"}, {"code": "6510906", "desc": "TELA PTO TULL MILENA L27 VINO 19-1534"}, {"code": "6509184", "desc": "TELA PTO TULL MILENA SL27 BLANCO 11-0601"}, {"code": "6509088", "desc": "TELA PTO TULL MILENA SL27 IMP PFD"}, {"code": "6509185", "desc": "TELA PTO TULL MILENA SL27 NEGRO 19-4005"}, {"code": "6001603", "desc": "TENSOR REF 6141000 10MM NIQUEL FREE"}, {"code": "6002376", "desc": "TERMINAL PLANA REF 2510010 5MM NEGRO"}, {"code": "6001604", "desc": "TERMINAL REF0325600002 BARRIL CELEST NIQ"}, {"code": "TOMAS", "desc": "TOMAS"}, {"code": "TOMAS BEIGE", "desc": "TOMAS"}, {"code": "TOMAS BLA", "desc": "TOMAS"}, {"code": "TOMAS PFD", "desc": "TOMAS"}, {"code": "TORONJA", "desc": "TORONJA"}, {"code": "TORONJA BEIGE", "desc": "TORONJA"}, {"code": "TORONJA BLA", "desc": "TORONJA"}, {"code": "TORONJA PFD", "desc": "TORONJA"}, {"code": "6003015", "desc": "VINILO LIVV ISOTIPO TEXTIL BLANCO"}, {"code": "6003016", "desc": "VINILO LIVV ISOTIPO TEXTIL NEGRO"}, {"code": "6003017", "desc": "VINILO LIVV ISOTIPO TEXTIL REFLECTIVO"}, {"code": "6001610", "desc": "ZETA REF 6231000 10MM NIQUEL FREE"}, {"code": "xxx", "desc": "xxx"}];
+
+    // Safe DOM helpers to guarantee zero TypeErrors
+    const getVal = (id, def = "") => {
+      const el = document.getElementById(id);
+      return el ? (el.value || "").trim() : def;
+    };
+
+    const setVal = (id, val) => {
+      const el = document.getElementById(id);
+      if (el) el.value = (val !== undefined && val !== null) ? val : "";
+    };
+
+    const sessionState = {
+      activeSheet: "BT1",
+      templateFile: null,
+      templateName: "PLANTILLA BOCETACION_FC_FT NVA C3-6 2026.xlsm",
+      sheetsData: {}
+    };
+
+    const imagesState = {
+      dibujo_plano: null,
+      dibujo_color: null,
+      referente: null,
+      foto: null
+    };
+
+    let activeDropzone = null;
+
+    function buildTelasTable() {
+      const tbody = document.getElementById('telasTableBody');
+      if (!tbody) return;
+      tbody.innerHTML = '';
+
+      for (let r = 24; r <= 33; r++) {
+        const rowNum = r - 23;
+        const tr = document.createElement('tr');
+        tr.className = "hover:bg-slate-50/60 transition";
+        tr.innerHTML = `
+          <td class="p-2.5 text-center font-bold font-mono text-slate-400 text-xs">${rowNum}</td>
+          
+          <td class="p-2.5">
+            <div class="space-y-1">
+              <input type="text" id="input_B${r}" list="sapMaterialsList" placeholder="Escribe código o nombre..." 
+                oninput="handleSapInput(this, 'desc_B${r}')" 
+                onchange="handleSapInput(this, 'desc_B${r}')" 
+                class="w-full bg-white border border-slate-300 rounded-lg p-2 font-mono text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+              <div id="desc_B${r}" class="text-[10px] text-emerald-700 font-semibold truncate pl-1 min-h-[14px]"></div>
+            </div>
+          </td>
+
+          <td class="p-2.5">
+            <select id="input_K${r}" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs">
+              <option value="">Sin Estampado</option>
+              <option value="SUBLIMADO">SUBLIMADO</option>
+              <option value="ESTAMPADO">ESTAMPADO</option>
+              <option value="ROTATIVO">ROTATIVO</option>
+              <option value="FOIL">FOIL</option>
+              <option value="DEGRADE">DEGRADE</option>
+            </select>
+          </td>
+
+          <td class="p-2.5">
+            <div class="space-y-1">
+              <input type="text" id="input_V${r}" list="sapMaterialsList" placeholder="Color 2 (o igual a C1)..." 
+                oninput="handleSapInput(this, 'desc_V${r}')" 
+                onchange="handleSapInput(this, 'desc_V${r}')" 
+                class="w-full bg-white border border-slate-300 rounded-lg p-2 font-mono text-xs focus:ring-2 focus:ring-emerald-500 outline-none">
+              <div id="desc_V${r}" class="text-[10px] text-emerald-700 font-semibold truncate pl-1 min-h-[14px]"></div>
+            </div>
+          </td>
+
+          <td class="p-2.5">
+            <select id="input_AS${r}" onchange="autoSaveCurrentBT()" class="w-full bg-emerald-50 text-emerald-800 font-bold border border-emerald-200 rounded-lg p-2 text-xs">
+              <option value="1">Prenda 1</option>
+              <option value="2">Prenda 2</option>
+              <option value="3">Prenda 3</option>
+              <option value="4">Prenda 4</option>
+            </select>
+          </td>
+
+          <td class="p-2.5">
+            <select id="input_AT${r}" onchange="autoSaveCurrentBT()" class="w-full bg-slate-50 border border-slate-200 rounded-lg p-2 text-xs">
+              <option value="DELANTERO/FRENTE">DELANTERO/FRENTE</option>
+              <option value="ESPALDA">ESPALDA</option>
+              <option value="MANGA">MANGA</option>
+              <option value="CUELLO">CUELLO</option>
+              <option value="SESGO">SESGO</option>
+              <option value="PRETINA">PRETINA</option>
+              <option value="BOLSILLO">BOLSILLO</option>
+              <option value="FORRO">FORRO</option>
+              <option value="PUÑO">PUÑO</option>
+              <option value="PERILLA">PERILLA</option>
+              <option value="CAPUCHA">CAPUCHA</option>
+            </select>
+          </td>
+        `;
+        tbody.appendChild(tr);
+      }
+    }
+
+    function handleSapInput(inputElem, descElemId) {
+      const val = (inputElem.value || "").trim();
+      const descElem = document.getElementById(descElemId);
+
+      if (!val) {
+        if (descElem) descElem.textContent = "";
+        inputElem.dataset.cleanSap = "";
+        autoSaveCurrentBT();
+        return;
+      }
+
+      const cleanVal = val.toLowerCase();
+      let match = ALL_SAP_MATERIALS.find(m => m.code === val || `${m.code} - ${m.desc}` === val);
+
+      if (!match) {
+        match = ALL_SAP_MATERIALS.find(m => val.startsWith(m.code));
+      }
+
+      if (!match) {
+        match = ALL_SAP_MATERIALS.find(m => m.desc.toLowerCase() === cleanVal);
+      }
+
+      if (match) {
+        inputElem.dataset.cleanSap = match.code;
+        if (descElem) descElem.textContent = `✓ [${match.code}] ${match.desc}`;
+      } else {
+        const numMatch = val.match(/^(\d+)/);
+        inputElem.dataset.cleanSap = numMatch ? numMatch[1] : val;
+        if (descElem) descElem.textContent = "Código personalizado";
+      }
+
+      autoSaveCurrentBT();
+    }
+
+    window.addEventListener('DOMContentLoaded', () => {
+      const datalist = document.getElementById('sapMaterialsList');
+      if (datalist) {
+        const fragment = document.createDocumentFragment();
+        ALL_SAP_MATERIALS.forEach(m => {
+          const opt = document.createElement('option');
+          opt.value = `${m.code} - ${m.desc}`;
+          fragment.appendChild(opt);
+        });
+        datalist.appendChild(fragment);
+      }
+
+      buildTelasTable();
+      renderBtSelector();
+      setupPasteAndDrop();
+    });
+
+    function onReferenciaInput(inputElem) {
+      inputElem.value = (inputElem.value || "").toUpperCase();
+      const current = sessionState.activeSheet;
+      const ref = inputElem.value.trim();
+      const title = document.getElementById('bannerSheetTitle');
+      if (title) {
+        title.textContent = ref ? `Editando: Hoja ${current} — Referencia: ${ref}` : `Editando: Hoja ${current}`;
+      }
+      autoSaveCurrentBT();
+    }
+
+    function renderBtSelector() {
+      const container = document.getElementById('bt-selector-container');
+      if (!container) return;
+      container.innerHTML = '';
+
+      for (let i = 1; i <= 20; i++) {
+        const sheetName = `BT${i}`;
+        const isFilled = hasSheetData(sheetName);
+        const isActive = sessionState.activeSheet === sheetName;
+        const refName = (sessionState.sheetsData[sheetName]?.cells?.["AN1"]) || "";
+
+        const btn = document.createElement('button');
+        btn.onclick = () => switchSheet(sheetName);
+        btn.className = `px-3 py-1.5 rounded-xl text-xs font-mono font-bold flex items-center gap-1.5 transition border ${
+          isActive 
+            ? 'bt-active' 
+            : isFilled 
+              ? 'bg-emerald-50 text-emerald-800 border-emerald-300 hover:bg-emerald-100' 
+              : 'bg-slate-100 text-slate-500 border-slate-200 hover:bg-slate-200 hover:text-slate-800'
+        }`;
+
+        btn.innerHTML = `
+          <span class="w-1.5 h-1.5 rounded-full ${isActive ? 'bg-white' : isFilled ? 'bg-emerald-500' : 'bg-slate-400'}"></span>
+          <span>${sheetName}</span>
+          ${refName ? `<span class="bg-emerald-900/20 text-emerald-900 text-[10px] px-1.5 py-0.2 rounded font-mono font-bold">${refName}</span>` : ''}
+        `;
+        container.appendChild(btn);
+      }
+
+      updateSummaryStats();
+    }
+
+    function hasSheetData(sheetName) {
+      const data = sessionState.sheetsData[sheetName];
+      if (!data) return false;
+      const hasCells = data.cells && Object.keys(data.cells).length > 0;
+      const hasImgs = data.images && (data.images.dibujo_plano || data.images.dibujo_color || data.images.referente || data.images.foto);
+      return hasCells || hasImgs;
+    }
+
+    function updateSummaryStats() {
+      const filled = Object.keys(sessionState.sheetsData).filter(s => hasSheetData(s));
+      const count = filled.length;
+      
+      const sumEl = document.getElementById('summary-filled-sheets');
+      if (sumEl) sumEl.textContent = `${count} de 20 Bocetos Diligenciados`;
+      
+      const badgeCount = document.getElementById('badge-filled-count');
+      if (badgeCount) badgeCount.textContent = count;
+
+      const currentStatus = document.getElementById('status-badge-current');
+      if (currentStatus) {
+        if (hasSheetData(sessionState.activeSheet)) {
+          currentStatus.className = "inline-flex items-center gap-1 bg-emerald-50 text-emerald-700 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-emerald-200";
+          currentStatus.innerHTML = "<span class='w-1.5 h-1.5 rounded-full bg-emerald-500'></span> Listo con datos";
+        } else {
+          currentStatus.className = "inline-flex items-center gap-1 bg-slate-100 text-slate-600 text-[11px] font-semibold px-2 py-0.5 rounded-md border border-slate-200";
+          currentStatus.innerHTML = "⚪ Hoja Vacía";
+        }
+      }
+    }
+
+    function switchSheet(targetSheet) {
+      if (sessionState.activeSheet === targetSheet) return;
+      autoSaveCurrentBT();
+      sessionState.activeSheet = targetSheet;
+      loadSheetIntoForm(targetSheet);
+      renderBtSelector();
+    }
+
+    function autoSaveCurrentBT() {
+      const current = sessionState.activeSheet;
+      const formData = readFormValues();
+      
+      const hasCells = Object.keys(formData.cells).length > 0;
+      const hasImages = imagesState.dibujo_plano || imagesState.dibujo_color || imagesState.referente || imagesState.foto;
+
+      if (hasCells || hasImages) {
+        sessionState.sheetsData[current] = formData;
+      } else {
+        delete sessionState.sheetsData[current];
+      }
+
+      renderBtSelector();
+    }
+
+    function readFormValues() {
+      const greenMapping = {
+        "AN1": getVal('input_AN1').toUpperCase(),
+        "L1": getVal('input_L1', 'CAROLINA'),
+        "AI1": getVal('input_AI1', '3-6'),
+        "K2": getVal('input_K2', 'FE FEMENINA'),
+        "AD1": getVal('input_AD1'),
+        "B5": getVal('input_B5'),
+        "S2": getVal('input_S2', 'Semi Ajustada'),
+        "X2": getVal('input_X2', 'XS-S-M-L-XL'),
+        "D3": getVal('input_D3', 'CAMISETA'),
+        "D4": getVal('input_D4', 'AZZORTI'),
+        "H4": getVal('input_H4'),
+        "Y3": getVal('input_Y3', 'NO'),
+        "K3": getVal('input_K3', 'XS'),
+        "L3": getVal('input_L3', 'S'),
+        "M3": getVal('input_M3', 'M'),
+        "N3": getVal('input_N3', 'L'),
+        "O3": getVal('input_O3', 'XL'),
+        "P3": getVal('input_P3', 'XXL'),
+        "N4": getVal('input_N4'),
+        "S4": getVal('input_S4'),
+        "AV12": getVal('input_AV12', 'INCA'),
+        "AV14": getVal('input_AV14', 'MODA'),
+        "AV2": getVal('input_AV2', 'CAMISETA'),
+        "AV3": getVal('input_AV3', 'REDONDO'),
+        "AV4": getVal('input_AV4', 'SIN CUELLO'),
+        "AV5": getVal('input_AV5', 'MANGA CORTA'),
+        "AV7": getVal('input_AV7'),
+        "AV8": getVal('input_AV8', 'RECTA'),
+        "AV9": getVal('input_AV9', 'MEDIO'),
+        "BG2": getVal('input_BG2'),
+        "BG3": getVal('input_BG3', 'REDONDO'),
+        "BG4": getVal('input_BG4', 'SIN CUELLO'),
+        "BG5": getVal('input_BG5', 'MANGA CORTA'),
+        "BG7": getVal('input_BG7', 'PANTALON'),
+        "BG8": getVal('input_BG8', 'RECTA'),
+        "BG9": getVal('input_BG9', 'MEDIO'),
+        "AA9": getVal('input_AA9'),
+        "A54": getVal('input_A54')
+      };
+
+      for (let r = 24; r <= 33; r++) {
+        const inputB = document.getElementById(`input_B${r}`);
+        const inputV = document.getElementById(`input_V${r}`);
+        const inputK = document.getElementById(`input_K${r}`);
+        const inputAS = document.getElementById(`input_AS${r}`);
+        const inputAT = document.getElementById(`input_AT${r}`);
+
+        if (inputB) {
+          const valB = (inputB.value || "").trim();
+          const cleanB = inputB.dataset.cleanSap || (valB.match(/^(\d+)/) ? valB.match(/^(\d+)/)[1] : valB);
+          if (cleanB) {
+            greenMapping[`B${r}`] = cleanB;
+            if (inputK && inputK.value) greenMapping[`K${r}`] = inputK.value;
+            if (inputAS && inputAS.value) greenMapping[`AS${r}`] = inputAS.value;
+            if (inputAT && inputAT.value) greenMapping[`AT${r}`] = inputAT.value;
+          }
+        }
+
+        if (inputV) {
+          const valV = (inputV.value || "").trim();
+          const cleanV = inputV.dataset.cleanSap || (valV.match(/^(\d+)/) ? valV.match(/^(\d+)/)[1] : valV);
+          if (cleanV) {
+            greenMapping[`V${r}`] = cleanV;
+          }
+        }
+      }
+
+      const cleanCells = {};
+      for (const [k, v] of Object.entries(greenMapping)) {
+        if (v !== "" && v !== null && v !== undefined) {
+          cleanCells[k] = v;
+        }
+      }
+
+      return {
+        cells: cleanCells,
+        images: {
+          dibujo_plano: imagesState.dibujo_plano || null,
+          dibujo_color: imagesState.dibujo_color || null,
+          referente: imagesState.referente || null,
+          foto: imagesState.foto || null
+        }
+      };
+    }
+
+    function loadSheetIntoForm(sheetName) {
+      const data = sessionState.sheetsData[sheetName];
+      
+      if (!data) {
+        document.querySelectorAll('input[type="text"], input[type="number"], textarea').forEach(el => {
+          el.value = "";
+          el.dataset.cleanSap = "";
+        });
+        document.querySelectorAll('[id^="desc_"]').forEach(el => el.textContent = "");
+        ['dibujo_plano', 'dibujo_color', 'referente', 'foto'].forEach(k => eliminarImagen(k));
+        
+        const title = document.getElementById('bannerSheetTitle');
+        if (title) title.textContent = `Editando: Hoja ${sheetName}`;
+        return;
+      }
+
+      const cells = data.cells || {};
+      const refVal = cells["AN1"] || "";
+      setVal('input_AN1', refVal);
+      
+      const title = document.getElementById('bannerSheetTitle');
+      if (title) {
+        title.textContent = refVal ? `Editando: Hoja ${sheetName} — Referencia: ${refVal}` : `Editando: Hoja ${sheetName}`;
+      }
+      
+      setVal('input_L1', cells["L1"] || "CAROLINA");
+      setVal('input_AI1', cells["AI1"] || "3-6");
+      setVal('input_K2', cells["K2"] || "FE FEMENINA");
+      setVal('input_AD1', cells["AD1"] || "");
+      setVal('input_B5', cells["B5"] || "");
+      setVal('input_S2', cells["S2"] || "Semi Ajustada");
+      setVal('input_X2', cells["X2"] || "XS-S-M-L-XL");
+      setVal('input_D3', cells["D3"] || "CAMISETA");
+      setVal('input_D4', cells["D4"] || "AZZORTI");
+      setVal('input_H4', cells["H4"] || "");
+      setVal('input_Y3', cells["Y3"] || "NO");
+      setVal('input_K3', cells["K3"] || "XS");
+      setVal('input_L3', cells["L3"] || "S");
+      setVal('input_M3', cells["M3"] || "M");
+      setVal('input_N3', cells["N3"] || "L");
+      setVal('input_O3', cells["O3"] || "XL");
+      setVal('input_P3', cells["P3"] || "XXL");
+      setVal('input_N4', cells["N4"] || "");
+      setVal('input_S4', cells["S4"] || "");
+      setVal('input_AV12', cells["AV12"] || "INCA");
+      setVal('input_AV14', cells["AV14"] || "MODA");
+      setVal('input_AV2', cells["AV2"] || "CAMISETA");
+      setVal('input_AV3', cells["AV3"] || "REDONDO");
+      setVal('input_AV4', cells["AV4"] || "SIN CUELLO");
+      setVal('input_AV5', cells["AV5"] || "MANGA CORTA");
+      setVal('input_AV7', cells["AV7"] || "");
+      setVal('input_AV8', cells["AV8"] || "RECTA");
+      setVal('input_AV9', cells["AV9"] || "MEDIO");
+      setVal('input_BG2', cells["BG2"] || "");
+      setVal('input_BG3', cells["BG3"] || "REDONDO");
+      setVal('input_BG4', cells["BG4"] || "SIN CUELLO");
+      setVal('input_BG5', cells["BG5"] || "MANGA CORTA");
+      setVal('input_BG7', cells["BG7"] || "PANTALON");
+      setVal('input_BG8', cells["BG8"] || "RECTA");
+      setVal('input_BG9', cells["BG9"] || "MEDIO");
+      setVal('input_AA9', cells["AA9"] || "");
+      setVal('input_A54', cells["A54"] || "");
+
+      for (let r = 24; r <= 33; r++) {
+        const inputB = document.getElementById(`input_B${r}`);
+        const inputV = document.getElementById(`input_V${r}`);
+        const inputK = document.getElementById(`input_K${r}`);
+        const inputAS = document.getElementById(`input_AS${r}`);
+        const inputAT = document.getElementById(`input_AT${r}`);
+
+        if (inputB) {
+          inputB.value = cells[`B${r}`] || "";
+          handleSapInput(inputB, `desc_B${r}`);
+        }
+        if (inputV) {
+          inputV.value = cells[`V${r}`] || "";
+          handleSapInput(inputV, `desc_V${r}`);
+        }
+        if (inputK) inputK.value = cells[`K${r}`] || "";
+        if (inputAS) inputAS.value = cells[`AS${r}`] || "1";
+        if (inputAT) inputAT.value = cells[`AT${r}`] || "DELANTERO/FRENTE";
+      }
+
+      const imgs = data.images || {};
+      ['dibujo_plano', 'dibujo_color', 'referente', 'foto'].forEach(k => {
+        if (imgs[k]) {
+          setDropzoneImage(k, imgs[k]);
+        } else {
+          eliminarImagen(k);
+        }
+      });
+    }
+
+    function setDropzoneImage(key, base64) {
+      imagesState[key] = base64;
+      const emptyEl = document.getElementById('empty_state_' + key);
+      if (emptyEl) emptyEl.classList.add('hidden');
+      const previewContainer = document.getElementById('preview_container_' + key);
+      if (previewContainer) previewContainer.classList.remove('hidden');
+      const imgEl = document.getElementById('img_preview_' + key);
+      if (imgEl) imgEl.src = base64;
+      const infoEl = document.getElementById('img_info_' + key);
+      if (infoEl) infoEl.textContent = "Imagen cargada";
+    }
+
+    function handleTemplateUpload(e) {
+      if (e.target.files.length > 0) {
+        const file = e.target.files[0];
+        sessionState.templateFile = file;
+        sessionState.templateName = file.name;
+        unlockWorkspace();
+      }
+    }
+
+    function useServerDefaultTemplate() {
+      sessionState.templateFile = null;
+      sessionState.templateName = "PLANTILLA BOCETACION_FC_FT NVA C3-6 2026.xlsm";
+      unlockWorkspace();
+    }
+
+    function unlockWorkspace() {
+      document.getElementById('screen-onboarding').classList.add('hidden');
+      document.getElementById('screen-workspace').classList.remove('hidden');
+      document.getElementById('badge-template-name').textContent = `📄 ${sessionState.templateName}`;
+      renderBtSelector();
+    }
+
+    function cambiarPlantilla() {
+      if (confirm("¿Deseas volver a la pantalla de selección de plantilla? (Tus datos actuales de sesión se mantendrán)")) {
+        document.getElementById('screen-workspace').classList.add('hidden');
+        document.getElementById('screen-onboarding').classList.remove('hidden');
+      }
+    }
+
+    function abrirModalDescargaUnificada() {
+      autoSaveCurrentBT();
+      const filled = Object.keys(sessionState.sheetsData).filter(s => hasSheetData(s));
+      
+      if (filled.length === 0) {
+        alert("Aún no has diligenciado ningún dato en las hojas BT. Diligencia al menos una hoja antes de descargar.");
+        return;
+      }
+
+      const displayList = filled.map(s => {
+        const r = sessionState.sheetsData[s]?.cells?.["AN1"];
+        return r ? `${s} (${r})` : s;
+      }).join(', ');
+
+      document.getElementById('modal-tpl-name').textContent = sessionState.templateName;
+      document.getElementById('modal-sheets-list').textContent = displayList;
+      document.getElementById('unifyStatusContainer').classList.add('hidden');
+      document.getElementById('modalDescargaUnificada').classList.remove('hidden');
+    }
+
+    function cerrarModalDescarga() {
+      document.getElementById('modalDescargaUnificada').classList.add('hidden');
+    }
+
+    async function procesarDescargaUnificada() {
+      autoSaveCurrentBT();
+      const statusContainer = document.getElementById('unifyStatusContainer');
+      const btnText = document.getElementById('btnUnifyText');
+      const btnSpinner = document.getElementById('btnUnifySpinner');
+      const btn = document.getElementById('btnEjecutarUnificado');
+
+      btn.disabled = true;
+      btnText.textContent = "Inyectando todas las hojas...";
+      btnSpinner.classList.remove('hidden');
+      statusContainer.className = "p-3 rounded-xl text-xs space-y-1 bg-amber-50 text-amber-800 border border-amber-200 block";
+      statusContainer.innerHTML = "<strong>Procesando Libro Completo...</strong> Inyectando hojas y renombrando pestañas...";
+
+      try {
+        const formData = new FormData();
+        const payload = {
+          sheets: sessionState.sheetsData
+        };
+        formData.append("payload_json", JSON.stringify(payload));
+
+        if (sessionState.templateFile) {
+          formData.append("excel_file", sessionState.templateFile);
+        }
+
+        const response = await fetch('/api/inyectar-unificado', {
+          method: 'POST',
+          body: formData
+        });
+
+        if (!response.ok) {
+          const errData = await response.json().catch(() => ({ detail: "Error del servidor" }));
+          throw new Error(errData.detail || "Error al procesar la plantilla.");
+        }
+
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        const count = Object.keys(sessionState.sheetsData).length;
+        a.download = `PLANTILLA_BOCETACION_UNIFICADA_${count}_BOCETOS.xlsm`;
+        document.body.appendChild(a);
+        a.click();
+        a.remove();
+        window.URL.revokeObjectURL(downloadUrl);
+
+        statusContainer.className = "p-3 rounded-xl text-xs space-y-1 bg-emerald-50 text-emerald-800 border border-emerald-200 block";
+        statusContainer.innerHTML = `<strong>¡Descarga Unificada Exitosa!</strong><br>Se generó el libro con <b>${count} referencias</b> inyectadas y renombradas.`;
+        btnText.textContent = "¡Libro Descargado!";
+
+        setTimeout(() => {
+          cerrarModalDescarga();
+          btn.disabled = false;
+          btnText.textContent = "Generar y Descargar Libro Completo";
+          btnSpinner.classList.add('hidden');
+        }, 2500);
+
+      } catch (err) {
+        statusContainer.className = "p-3 rounded-xl text-xs space-y-1 bg-rose-50 text-rose-800 border border-rose-200 block";
+        statusContainer.innerHTML = `<strong>Error:</strong> ${err.message}`;
+        btn.disabled = false;
+        btnText.textContent = "Reintentar";
+        btnSpinner.classList.add('hidden');
+      }
+    }
+
+    function setupPasteAndDrop() {
+      window.addEventListener('paste', (e) => {
+        const items = e.clipboardData.items;
+        for (let i = 0; i < items.length; i++) {
+          if (items[i].type.indexOf('image') !== -1) {
+            const file = items[i].getAsFile();
+            const target = activeDropzone || 'dibujo_plano';
+            processImageFile(file, target);
+            showTab('graficos');
+            break;
+          }
+        }
+      });
+
+      ['dibujo_plano', 'dibujo_color', 'referente', 'foto'].forEach(key => {
+        const zone = document.getElementById('dropzone_' + key);
+        if (!zone) return;
+        zone.addEventListener('focus', () => { activeDropzone = key; });
+        zone.addEventListener('mouseenter', () => { activeDropzone = key; });
+        zone.addEventListener('dragover', (e) => { e.preventDefault(); zone.classList.add('dropzone-active'); });
+        zone.addEventListener('dragleave', () => { zone.classList.remove('dropzone-active'); });
+        zone.addEventListener('drop', (e) => {
+          e.preventDefault();
+          zone.classList.remove('dropzone-active');
+          if (e.dataTransfer.files.length > 0) {
+            processImageFile(e.dataTransfer.files[0], key);
+          }
+        });
+      });
+    }
+
+    function handleFileInput(e, key) {
+      if (e.target.files.length > 0) {
+        processImageFile(e.target.files[0], key);
+      }
+    }
+
+    function processImageFile(file, key) {
+      if (!file.type.startsWith('image/')) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        const base64Data = event.target.result;
+        setDropzoneImage(key, base64Data);
+        autoSaveCurrentBT();
+      };
+      reader.readAsDataURL(file);
+    }
+
+    function eliminarImagen(key) {
+      imagesState[key] = null;
+      const previewContainer = document.getElementById('preview_container_' + key);
+      if (previewContainer) previewContainer.classList.add('hidden');
+      const emptyEl = document.getElementById('empty_state_' + key);
+      if (emptyEl) emptyEl.classList.remove('hidden');
+      const imgEl = document.getElementById('img_preview_' + key);
+      if (imgEl) imgEl.src = "";
+      autoSaveCurrentBT();
+    }
+
+    function showTab(tabId) {
+      document.querySelectorAll('[id^="tabContent-"]').forEach(el => el.classList.add('hidden'));
+      document.querySelectorAll('.tab-btn').forEach(el => {
+        el.classList.remove('tab-active');
+        el.classList.add('border-transparent', 'text-slate-500');
+      });
+
+      const content = document.getElementById('tabContent-' + tabId);
+      if (content) content.classList.remove('hidden');
+      const activeBtn = document.getElementById('tabBtn-' + tabId);
+      if (activeBtn) {
+        activeBtn.classList.add('tab-active');
+        activeBtn.classList.remove('border-transparent', 'text-slate-500');
+      }
+    }
+
+    function onRangoTallasChange() {
+      const rango = getVal('input_X2');
+      if (rango === "XS-S-M-L-XL") {
+        setVal('input_K3', "XS");
+        setVal('input_L3', "S");
+        setVal('input_M3', "M");
+        setVal('input_N3', "L");
+        setVal('input_O3', "XL");
+        setVal('input_P3', "XXL");
+      } else if (rango === "6-8-10-12-14") {
+        setVal('input_K3', "6");
+        setVal('input_L3', "8");
+        setVal('input_M3', "10");
+        setVal('input_N3', "12");
+        setVal('input_O3', "14");
+        setVal('input_P3', "16");
+      }
+    }
+
+    function cargarDemoEnHojaActual() {
+      const sheet = sessionState.activeSheet;
+      const num = sheet.replace('BT', '');
+      const demoRef = `R${num.padStart(2, '0')}01`;
+      
+      setVal('input_AN1', demoRef);
+      const title = document.getElementById('bannerSheetTitle');
+      if (title) title.textContent = `Editando: Hoja ${sheet} — Referencia: ${demoRef}`;
+      
+      setVal('input_L1', "CAROLINA");
+      setVal('input_D4', "AZZORTI");
+      setVal('input_AI1', "3-6");
+      setVal('input_K2', "FE FEMENINA");
+      setVal('input_AD1', "45990");
+      setVal('input_B5', "1. Cuello sobre puesto como muestra física (efecto prenda sobre puesta)\n2. Manga corta con efecto manga sobre puesta en contraste como muestra física\n3. Largo total blusa con pieza interna simulando prenda sobre puesta como muestra física.\n4. Silueta semi ajustada");
+      setVal('input_D3', "BLUSA");
+      setVal('input_S2', "Semi Ajustada");
+      setVal('input_X2', "XS-S-M-L-XL");
+      setVal('input_H4', "BOTANIC GARDEN C3");
+      setVal('input_Y3', "NO");
+      setVal('input_N4', "LOCALIZADO");
+      setVal('input_S4', "LAVANDERIA");
+      setVal('input_AV12', "INCA");
+      setVal('input_AV14', "MODA");
+      
+      setVal('input_AV2', "BLUSA");
+      setVal('input_AV3', "REDONDO");
+      setVal('input_AV4', "SIN CUELLO");
+      setVal('input_AV5', "MANGA CORTA");
+      setVal('input_AV8', "RECTA");
+      setVal('input_AV9', "MEDIO");
+      
+      const inB24 = document.getElementById('input_B24');
+      if (inB24) { inB24.value = "6002536"; handleSapInput(inB24, 'desc_B24'); }
+      setVal('input_K24', "SUBLIMADO");
+      setVal('input_AS24', "1");
+      setVal('input_AT24', "DELANTERO/FRENTE");
+
+      const inB25 = document.getElementById('input_B25');
+      if (inB25) { inB25.value = "6509184"; handleSapInput(inB25, 'desc_B25'); }
+      setVal('input_K25', "ESTAMPADO");
+      setVal('input_AS25', "1");
+      setVal('input_AT25', "SESGO");
+
+      setVal('input_AA9', "Tomar como referente la caída de cuello de la ref R8840 pero con 2cm menos de profundidad.");
+      setVal('input_A54', "• Silueta semiajustada con excelente caída y ajuste\n• Tejido suave al tacto con alta transpirabilidad");
+      
+      autoSaveCurrentBT();
+      alert(`¡Datos demo cargados en ${sheet} (${demoRef})!`);
+    }
+
+    function limpiarHojaActual() {
+      if (confirm(`¿Deseas limpiar todos los datos de la hoja ${sessionState.activeSheet}?`)) {
+        delete sessionState.sheetsData[sessionState.activeSheet];
+        loadSheetIntoForm(sessionState.activeSheet);
+        renderBtSelector();
+      }
+    }
+  </script>
+</body>
+</html>
